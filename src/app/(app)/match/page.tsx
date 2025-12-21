@@ -8,6 +8,8 @@ import { useState, useMemo, useRef, PointerEvent, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { recordMatchAction } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 type CardStatus = 'initial' | 'dismissing' | 'accepting';
 type DragState = {
@@ -29,6 +31,7 @@ const MatchCardSkeleton = () => (
 export default function MatchPage() {
   const { profiles: initialProfiles, isLoading, error, refetch } = useMatchProfiles();
   const [profiles, setProfiles] = useState<typeof initialProfiles>([]);
+  const { toast } = useToast();
   
   useEffect(() => {
     setProfiles(initialProfiles);
@@ -42,6 +45,20 @@ export default function MatchPage() {
   
   const handleAction = (action: 'accept' | 'dismiss') => {
     if (status !== 'initial' || !currentProfile) return;
+
+    // Call the mock API
+    recordMatchAction(currentProfile.id, action).catch(err => {
+        console.error(`Failed to ${action} profile:`, err);
+        // We can show a toast, but for now we'll let it fail silently
+        // in the background as the UI will proceed anyway.
+    });
+
+    if (action === 'accept') {
+        toast({
+            title: `You liked ${currentProfile.name}!`,
+            description: "If they like you back, it's a match!",
+        });
+    }
     
     setStatus(action === 'accept' ? 'accepting' : 'dismissing');
     
@@ -65,6 +82,7 @@ export default function MatchPage() {
     if (cardRef.current) {
       cardRef.current.style.transition = 'none';
     }
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -76,6 +94,7 @@ export default function MatchPage() {
 
   const handlePointerUp = (e: PointerEvent<HTMLDivElement>) => {
     if (!dragState.current.isDragging) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
 
     dragState.current.isDragging = false;
     if (cardRef.current) {
@@ -105,7 +124,7 @@ export default function MatchPage() {
       if (status === 'dismissing') {
           return { transform: 'translateX(-100%) rotate(-15deg)', opacity: 0 };
       }
-      return { transform: 'translateX(0) rotate(0deg) scale(1)', opacity: 1, touchAction: 'none' };
+      return { transform: 'translateX(0) rotate(0deg) scale(1)', opacity: 1, touchAction: 'pan-y' };
     }
     if (index === 1) { // Card underneath
       return { transform: `translateX(0) rotate(0deg) scale(${status === 'initial' ? 0.95 : 1})`, opacity: 1, transition: 'transform 0.3s, opacity 0.3s'};
@@ -154,7 +173,7 @@ export default function MatchPage() {
                     onPointerDown: handlePointerDown,
                     onPointerMove: handlePointerMove,
                     onPointerUp: handlePointerUp,
-                    onPointerLeave: handlePointerUp, // End drag if cursor leaves
+                    onPointerCancel: handlePointerUp, // End drag if OS cancels pointer
                 })}
             >
                 <MatchCard profile={profile} />

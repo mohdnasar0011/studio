@@ -11,9 +11,14 @@ import {
   Shield,
   Users,
   Flag,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { signOut } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+
 
 const SettingsItem = ({
   icon: Icon,
@@ -28,7 +33,6 @@ const SettingsItem = ({
 }) => {
   const content = (
     <div
-      onClick={onClick}
       className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/50"
     >
       <div className="flex items-center gap-4">
@@ -47,11 +51,36 @@ const SettingsItem = ({
     );
   }
   
+  // Use a button for onClick to be semantically correct
   return <button className="w-full" onClick={onClick}>{content}</button>;
 };
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+        await signOut();
+        toast({
+            title: 'Signed Out',
+            description: 'You have been successfully signed out.',
+        });
+        router.push('/login');
+        router.refresh();
+    } catch (error) {
+        console.error("Sign out failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Sign Out Failed",
+            description: "Could not sign you out. Please try again."
+        });
+    } finally {
+        setIsSigningOut(false);
+    }
+  }
 
   const handleAuthRedirect = () => {
     router.push('/login');
@@ -75,11 +104,12 @@ export default function SettingsPage() {
           </h2>
           <SettingsItem icon={Users} label="Switch Account" onClick={handleAuthRedirect} />
           <button
-            onClick={handleAuthRedirect}
-            className="flex w-full items-center gap-4 p-4 text-left text-destructive transition-colors hover:bg-destructive/10"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="flex w-full items-center gap-4 p-4 text-left text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
           >
-            <LogOut className="h-5 w-5" />
-            <span>Sign Out</span>
+            {isSigningOut ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogOut className="h-5 w-5" />}
+            <span>{isSigningOut ? 'Signing Out...' : 'Sign Out'}</span>
           </button>
         </div>
 
@@ -88,7 +118,7 @@ export default function SettingsPage() {
             Support
           </h2>
           <SettingsItem icon={HelpCircle} label="Help Center" href="/settings/help" />
-          <SettingsItem icon={Flag} label="Report a Problem" onClick={() => console.log('Report problem')} />
+          <SettingsItem icon={Flag} label="Report a Problem" onClick={() => toast({ title: 'Not Implemented', description: 'Reporting a problem is not yet available.'})} />
         </div>
 
         <div className="py-2">

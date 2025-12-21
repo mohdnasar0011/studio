@@ -7,11 +7,26 @@ import { ArrowDown, ArrowUp, MessageSquare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CommentsSheet from "./CommentsSheet";
+import { voteOnPost } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function FeedPostCard({ post }: { post: FeedPost }) {
+  const { toast } = useToast();
   // The author object might come from the backend directly
   const authorImage = post.author?.avatarId ? getImageById(post.author.avatarId) : null;
   const postImage = post.imageUrl ? { imageUrl: post.imageUrl, imageHint: 'post image' } : null;
+
+  const handleVote = (voteType: 'upvote' | 'downvote') => {
+    voteOnPost(post.id, voteType).catch(err => {
+      console.error(`Failed to ${voteType} post`, err);
+      toast({
+        variant: 'destructive',
+        title: 'Vote Failed',
+        description: 'Could not record your vote. Please try again.'
+      });
+    });
+    // Note: This is fire-and-forget. UI will not update optimistically for this mock.
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -55,11 +70,11 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
       </CardContent>
       <CardFooter className="flex justify-between bg-muted/50 p-2 px-4">
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
+          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground" onClick={() => handleVote('upvote')}>
             <ArrowUp className="h-4 w-4" />
             <span>{post.upvotes}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
+          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground" onClick={() => handleVote('downvote')}>
             <ArrowDown className="h-4 w-4" />
           </Button>
         </div>

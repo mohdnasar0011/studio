@@ -18,14 +18,24 @@ const inMemoryComments = new Map<string, any[]>();
  * @param token - An authentication token (unused in mock).
  * @returns A promise resolving to mock user data.
  */
-export async function loginHandshake(token: string): Promise<{ id: string, userId: string, email: string, name: string }> {
-  console.log("Mock Login Handshake:", token);
+export async function loginHandshake(email?: string, password?: string): Promise<{ id: string, userId: string, email: string, name: string }> {
+  console.log("Mock Login Handshake:", {email, password});
   
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   
   const mockUser = { id: currentUser.id, userId: currentUser.id, email: 'user@example.com', name: currentUser.name };
   localStorage.setItem('userId', mockUser.userId);
   return mockUser;
+}
+
+/**
+ * Simulates user sign-out.
+ */
+export async function signOut(): Promise<{ success: boolean }> {
+    console.log("Mock Sign Out");
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
+    localStorage.removeItem('userId');
+    return { success: true };
 }
 
 
@@ -94,6 +104,22 @@ export async function getMatchProfiles() {
   console.log("Mock Get Match Profiles");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   return Promise.resolve([...matchProfiles]);
+}
+
+/**
+ * Simulates an action (accept/dismiss) on a match profile.
+ * @param profileId The ID of the profile.
+ * @param action The action taken ('accept' or 'dismiss').
+ */
+export async function recordMatchAction(profileId: string, action: 'accept' | 'dismiss'): Promise<{ success: boolean }> {
+    console.log(`Mock Match Action: ${action} on profile ${profileId}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
+    if (matchProfiles.some(p => p.id === profileId)) {
+        console.log(`Mock API: Successfully recorded ${action} for profile ${profileId}`);
+        return { success: true };
+    } else {
+        throw new Error("Profile not found");
+    }
 }
 
 /**
@@ -181,4 +207,17 @@ export async function updateProfile(userId: string, updates: Partial<Pick<User, 
 
   console.log("Updated user:", users[userIndex]);
   return users[userIndex];
+}
+
+/**
+ * Simulates voting on a post.
+ * @param postId The ID of the post.
+ * @param voteType The type of vote ('upvote' or 'downvote').
+ */
+export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'): Promise<{ success: boolean }> {
+    console.log(`Mock API: ${voteType} on post ${postId}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 4));
+    // In a real app, you'd check if the post exists and update its vote count.
+    // For now, we just log the action.
+    return { success: true };
 }
