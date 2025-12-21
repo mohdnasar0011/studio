@@ -1,3 +1,4 @@
+
 'use client';
 
 import MatchCard from '@/components/app/MatchCard';
@@ -6,6 +7,7 @@ import { useMatchProfiles } from '@/hooks/use-match-profiles';
 import { useState, useMemo, useRef, PointerEvent, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 type CardStatus = 'initial' | 'dismissing' | 'accepting';
 type DragState = {
