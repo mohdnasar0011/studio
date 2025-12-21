@@ -15,6 +15,7 @@ import { Camera, MapPin, Dumbbell, X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { createPost } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { currentUser } from '@/lib/data';
 
 export default function CreatePost({
   children,
@@ -30,7 +31,8 @@ export default function CreatePost({
   const [open, setOpen] = useState(false);
 
   const handlePost = async () => {
-    const userId = localStorage.getItem('userId');
+    // In a real app, you'd get the current user's ID from auth state.
+    const userId = currentUser.id;
     if (!userId) {
       toast({
         variant: 'destructive',
@@ -57,10 +59,14 @@ export default function CreatePost({
         title: 'Post Created!',
         description: 'Your post is now live.',
       });
-      onPostCreated(); // Notify parent that a post was created
+      
+      // Reset state and close dialog
       setPostContent('');
       setImagePreview(null);
-      setOpen(false); // Close the dialog
+      setOpen(false); 
+      
+      // Notify parent to refetch posts
+      onPostCreated();
     } catch (error) {
       console.error('Failed to create post:', error);
       toast({
@@ -75,7 +81,7 @@ export default function CreatePost({
 
   const handleImageSelect = () => {
     // This is a placeholder for actual image upload logic.
-    console.log('Add photo clicked');
+    // In a real app, this would open a file picker.
     setImagePreview('https://picsum.photos/seed/post-new/600/400');
   };
 
