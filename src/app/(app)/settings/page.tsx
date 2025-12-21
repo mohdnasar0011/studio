@@ -53,8 +53,7 @@ const SettingsItem = ({
 export default function SettingsPage() {
   const router = useRouter();
 
-  const handleSignOut = () => {
-    console.log('Signing out...');
+  const handleAuthRedirect = () => {
     router.push('/login');
   };
 
@@ -74,9 +73,9 @@ export default function SettingsPage() {
           <h2 className="px-4 py-2 text-sm font-semibold text-muted-foreground">
             Account
           </h2>
-          <SettingsItem icon={Users} label="Switch Account" onClick={() => console.log('Switch account')} />
+          <SettingsItem icon={Users} label="Switch Account" onClick={handleAuthRedirect} />
           <button
-            onClick={handleSignOut}
+            onClick={handleAuthRedirect}
             className="flex w-full items-center gap-4 p-4 text-left text-destructive transition-colors hover:bg-destructive/10"
           >
             <LogOut className="h-5 w-5" />
