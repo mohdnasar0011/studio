@@ -17,6 +17,7 @@ import { usePosts } from '@/hooks/use-posts';
 import { useMemo, useState } from 'react';
 import CreatePost from './CreatePost';
 import EditProfileDialog from './EditProfileDialog';
+import FeedPostCard from './FeedPostCard';
 
 
 const StatItem = ({ value, label }: { value: string | number; label: string }) => (
@@ -152,21 +153,16 @@ export default function UserProfile({
              <Loader2 className="h-8 w-8 animate-spin text-primary" />
            </div>
         ) : (
-          <div className="grid grid-cols-3 gap-1 p-1">
-              {userPosts.map((post) => (
-                post.imageUrl && (
-                  <div key={post.id} className="relative aspect-square">
-                      <Image
-                      src={post.imageUrl}
-                      alt={`Post by ${post.author.name}`}
-                      fill
-                      className="object-cover"
-                      data-ai-hint="user post"
-                      sizes="(max-width: 768px) 33vw, 120px"
-                      />
-                  </div>
-                )
-              ))}
+          <div className="space-y-4 p-4">
+            {userPosts.map((post) => (
+                <FeedPostCard key={post.id} post={post} />
+            ))}
+            {userPosts.length === 0 && (
+                <div className="text-center text-muted-foreground py-8">
+                    <p className="font-semibold">No posts yet</p>
+                    <p className="text-sm">This user hasn't posted anything.</p>
+                </div>
+            )}
           </div>
         )}
       </div>
