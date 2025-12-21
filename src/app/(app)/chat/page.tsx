@@ -9,6 +9,8 @@ import { getImageById } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
 import { Users, MessageSquare, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { formatDistanceToNow } from 'date-fns';
+
 
 const ChatThreadSkeleton = () => (
     <div className="flex items-center gap-4 p-4">
@@ -68,6 +70,19 @@ export default function ChatPage() {
           
           const href = thread.isGroup ? `/chat/group/${thread.id}` : `/chat/${participant?.id}`;
 
+          const formattedTimestamp = (timestamp: string) => {
+            try {
+              const date = new Date(timestamp);
+              // Check if date is valid
+              if (isNaN(date.getTime())) {
+                return timestamp; // return original string if invalid
+              }
+              return formatDistanceToNow(date, { addSuffix: true });
+            } catch (e) {
+              return timestamp; // fallback to original timestamp
+            }
+          }
+
           return (
             <Link href={href} key={thread.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50">
               <Avatar className="h-12 w-12 border">
@@ -79,7 +94,7 @@ export default function ChatPage() {
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-baseline justify-between">
                   <p className="font-semibold truncate">{thread.name}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(thread.lastMessage.timestamp).toLocaleTimeString()}</p>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap">{formattedTimestamp(thread.lastMessage.timestamp)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className={cn(

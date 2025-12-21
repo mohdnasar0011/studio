@@ -85,6 +85,20 @@ export default function ChatConversationPage() {
       setMessages(prev => [...prev, messageToSend]);
       setNewMessage('');
       setIsSending(false);
+
+      // Simulate a reply
+      setTimeout(() => {
+        if(participant) {
+            const replyMessage: Message = {
+                id: `msg-${Date.now()}`,
+                senderId: participant.id,
+                content: "Sounds good!",
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            };
+            setMessages(prev => [...prev, replyMessage]);
+        }
+      }, 1500)
+
     }, 500);
   };
 

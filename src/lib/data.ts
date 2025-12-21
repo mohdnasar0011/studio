@@ -139,7 +139,7 @@ export const chatThreads: ChatThread[] = [
     participants: [users[0], users[1], users[3]],
     lastMessage: {
       content: "Alex: See you all at the park entrance!",
-      timestamp: '10:15 AM',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     },
     unreadCount: 2,
   },
@@ -150,7 +150,7 @@ export const chatThreads: ChatThread[] = [
     participants: [users[4]],
     lastMessage: {
       content: "Perfect, let's aim for the 7 PM session.",
-      timestamp: 'Yesterday',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     },
     unreadCount: 0,
   },
@@ -161,7 +161,7 @@ export const chatThreads: ChatThread[] = [
     participants: [users[1]],
     lastMessage: {
       content: "Hey! Are you free for a workout this Friday?",
-      timestamp: 'Wed',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     },
     unreadCount: 1,
   },
@@ -172,7 +172,7 @@ export const chatThreads: ChatThread[] = [
     participants: [users[2], users[4]],
     lastMessage: {
       content: "You: I'll bring an extra mat.",
-      timestamp: 'Tue',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
     },
     unreadCount: 0,
   },
