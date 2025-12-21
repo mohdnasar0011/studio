@@ -2,15 +2,17 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import type { User } from '@/lib/data';
+import type { User, FeedPost } from '@/lib/data';
 import {
   getImageById,
-  placeholderImages,
 } from '@/lib/placeholder-images';
-import { Settings, ChevronLeft, MessageCircle, UserPlus } from 'lucide-react';
+import { Settings, ChevronLeft, MessageCircle, UserPlus, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { usePosts } from '@/hooks/use-posts';
+import { useMemo } from 'react';
+
 
 const StatItem = ({ value, label }: { value: string | number; label: string }) => (
     <div className="flex flex-col items-center">
@@ -27,16 +29,19 @@ export default function UserProfile({
   isCurrentUser: boolean;
 }) {
   const router = useRouter();
-  const userImage = getImageById(user.avatarId);
-  const galleryImages = placeholderImages.filter((p) =>
-    p.id.startsWith('post-')
-  );
+  const { posts, isLoading: isLoadingPosts } = usePosts();
+  
+  const userPosts = useMemo(() => {
+    return posts.filter(post => post.author.id === user.id);
+  }, [posts, user.id]);
 
+  const userImage = getImageById(user.avatarId);
+  
   return (
     <div className="h-full">
       <header className="sticky top-0 z-10 flex items-center border-b bg-background/80 p-4 backdrop-blur-sm">
         <h1 className="flex-1 text-center text-xl font-bold">
-          {isCurrentUser ? user.name : user.name}
+          {user.name}
         </h1>
         {isCurrentUser ? (
           <Link href="/settings" passHref>
@@ -69,13 +74,12 @@ export default function UserProfile({
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="grid flex-1 grid-cols-2 gap-4">
-              <StatItem value={7} label="Posts" />
+              <StatItem value={userPosts.length} label="Posts" />
               <StatItem value={5} label="Buddies" />
           </div>
         </div>
         
         <div className="mt-4">
-            <h2 className="text-sm font-semibold">{user.name}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
                 Morning runner and evening lifter. Looking for a buddy to keep me
                 accountable for my weekend long runs!
@@ -97,32 +101,28 @@ export default function UserProfile({
       </div>
 
       <div className="border-t">
-        <div className="grid grid-cols-3 gap-1 p-1">
-            {galleryImages.map((img) => (
-            <div key={img.id} className="relative aspect-square">
-                <Image
-                src={img.imageUrl}
-                alt={img.description}
-                fill
-                className="object-cover"
-                data-ai-hint={img.imageHint}
-                sizes="(max-width: 768px) 33vw, 120px"
-                />
-            </div>
-            ))}
-            {galleryImages.slice(0, 1).map((img) => (
-            <div key={img.id + 'd'} className="relative aspect-square">
-                <Image
-                src={img.imageUrl}
-                alt={img.description}
-                fill
-                className="object-cover"
-                data-ai-hint={img.imageHint}
-                sizes="(max-width: 768px) 33vw, 120px"
-                />
-            </div>
-            ))}
-        </div>
+        {isLoadingPosts ? (
+           <div className="flex justify-center p-8">
+             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+           </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-1 p-1">
+              {userPosts.map((post) => (
+                post.imageUrl && (
+                  <div key={post.id} className="relative aspect-square">
+                      <Image
+                      src={post.imageUrl}
+                      alt={`Post by ${post.author.name}`}
+                      fill
+                      className="object-cover"
+                      data-ai-hint="user post"
+                      sizes="(max-width: 768px) 33vw, 120px"
+                      />
+                  </div>
+                )
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );
