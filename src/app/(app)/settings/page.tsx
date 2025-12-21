@@ -9,7 +9,7 @@ import {
   HelpCircle,
   LogOut,
   Shield,
-  UserSwitch,
+  Users,
   Flag,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -60,7 +60,7 @@ export default function SettingsPage() {
           <h2 className="px-4 py-2 text-sm font-semibold text-muted-foreground">
             Account
           </h2>
-          <SettingsItem icon={UserSwitch} label="Switch Account" onClick={() => console.log('Switch account')} />
+          <SettingsItem icon={Users} label="Switch Account" onClick={() => console.log('Switch account')} />
           <button
             onClick={handleSignOut}
             className="flex w-full items-center gap-4 p-4 text-left text-destructive transition-colors hover:bg-destructive/10"
