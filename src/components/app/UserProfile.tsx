@@ -8,12 +8,14 @@ import { useToast } from '@/hooks/use-toast';
 import {
   getImageById,
 } from '@/lib/placeholder-images';
-import { Settings, ChevronLeft, MessageCircle, UserPlus, Loader2 } from 'lucide-react';
+import { Settings, ChevronLeft, MessageCircle, UserPlus, Loader2, Edit, PlusSquare } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePosts } from '@/hooks/use-posts';
 import { useMemo, useState } from 'react';
+import CreatePost from './CreatePost';
+import EditProfileDialog from './EditProfileDialog';
 
 
 const StatItem = ({ value, label }: { value: string | number; label: string }) => (
@@ -32,7 +34,7 @@ export default function UserProfile({
 }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { posts, isLoading: isLoadingPosts } = usePosts();
+  const { posts, isLoading: isLoadingPosts, refetch: refetchPosts } = usePosts();
   const [isAdding, setIsAdding] = useState(false);
   
   const userPosts = useMemo(() => {
@@ -64,10 +66,21 @@ export default function UserProfile({
   return (
     <div className="h-full">
       <header className="sticky top-0 z-10 flex items-center border-b bg-background/80 p-4 backdrop-blur-sm">
+         {!isCurrentUser && (
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                onClick={() => router.back()}
+            >
+                <ChevronLeft />
+                <span className="sr-only">Back</span>
+            </Button>
+         )}
         <h1 className="flex-1 text-center text-xl font-bold">
           {user.name}
         </h1>
-        {isCurrentUser ? (
+        {isCurrentUser && (
           <Link href="/settings" passHref>
             <Button
               variant="ghost"
@@ -78,16 +91,6 @@ export default function UserProfile({
               <span className="sr-only">Settings</span>
             </Button>
           </Link>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2"
-            onClick={() => router.back()}
-          >
-            <ChevronLeft />
-            <span className="sr-only">Back</span>
-          </Button>
         )}
       </header>
 
@@ -110,7 +113,20 @@ export default function UserProfile({
             </p>
         </div>
 
-        {!isCurrentUser && (
+        {isCurrentUser ? (
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <EditProfileDialog user={user}>
+                    <Button variant="outline" size="sm">
+                        <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                    </Button>
+                </EditProfileDialog>
+                 <CreatePost onPostCreated={refetchPosts}>
+                    <Button size="sm" className="w-full">
+                        <PlusSquare className="mr-2 h-4 w-4" /> Create Post
+                    </Button>
+                </CreatePost>
+            </div>
+        ) : (
             <div className="mt-4 grid grid-cols-2 gap-3">
             <Button variant="outline" size="sm" onClick={handleAddBuddy} disabled={isAdding}>
                     {isAdding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />} 
