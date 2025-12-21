@@ -22,22 +22,29 @@ type Message = {
 // In a real app, this would come from an API call
 const getConversationByParticipantId = (userId: string) => {
     const thread = chatThreads.find(t => !t.isGroup && t.participants.some(p => p.id === userId));
-    if (!thread) return null;
-
     const participant = users.find(u => u.id === userId);
+
     if (!participant) return null;
 
-    // Create a more detailed message history for the mock
-    const messages = [
-        { id: 'msg-1', senderId: participant.id, content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
-        { id: 'msg-2', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
-        { id: 'msg-3', senderId: participant.id, content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
-        { id: 'msg-4', senderId: 'user-1', content: thread.lastMessage.content, timestamp: thread.lastMessage.timestamp },
-    ];
+    if (thread) {
+         // Create a more detailed message history for the mock if a thread exists
+        const messages = [
+            { id: 'msg-1', senderId: participant.id, content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
+            { id: 'msg-2', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
+            { id: 'msg-3', senderId: participant.id, content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
+            { id: 'msg-4', senderId: 'user-1', content: thread.lastMessage.content, timestamp: thread.lastMessage.timestamp },
+        ];
+
+        return {
+            participant,
+            messages,
+        }
+    }
     
+    // If no thread exists, create a new, empty conversation
     return {
         participant,
-        messages,
+        messages: [],
     }
 }
 
@@ -183,6 +190,13 @@ export default function ChatConversationPage() {
               </div>
             );
           })}
+           {messages.length === 0 && (
+            <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground p-8">
+              <MessageCircle size={48} className="mb-4" />
+              <p className="font-semibold">Start a conversation</p>
+              <p className="text-sm">Send a message to {participant.name}.</p>
+            </div>
+          )}
         </div>
       </ScrollArea>
       
