@@ -7,7 +7,7 @@ import {
   getImageById,
   placeholderImages,
 } from '@/lib/placeholder-images';
-import { Dumbbell, Settings, Users, ChevronLeft, MessageCircle } from 'lucide-react';
+import { Dumbbell, Settings, Users, ChevronLeft, MessageCircle, UserPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -65,7 +65,10 @@ export default function UserProfile({
       </div>
       
       {!isCurrentUser && (
-        <div className="px-6 pb-4">
+        <div className="grid grid-cols-2 gap-4 px-6 pb-4">
+           <Button variant="outline" size="lg" onClick={() => console.log('Add Buddy clicked for', user.name)}>
+                <UserPlus className="mr-2 h-5 w-5" /> Add Buddy
+           </Button>
            <Link href={`/chat/${user.id}`} passHref>
             <Button className="w-full" size="lg">
                 <MessageCircle className="mr-2 h-5 w-5" /> Message
