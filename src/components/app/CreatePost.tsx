@@ -30,8 +30,8 @@ export default function CreatePost({
   const [open, setOpen] = useState(false);
 
   const handlePost = async () => {
-    const firebaseUid = localStorage.getItem('firebaseUid');
-    if (!firebaseUid) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
       toast({
         variant: 'destructive',
         title: 'Not Signed In',
@@ -43,14 +43,14 @@ export default function CreatePost({
 
     setIsPosting(true);
     try {
-      // In a real app, you'd upload the image to Firebase Storage first.
+      // In a real app, you'd upload the image to a storage service first.
       // For now, we'll use the placeholder URL directly if it exists.
       const imageUrl = imagePreview;
 
       await createPost({
         content: postContent,
         imageUrl: imageUrl,
-        firebaseUid: firebaseUid,
+        userId: userId,
       });
 
       toast({
@@ -74,8 +74,7 @@ export default function CreatePost({
   };
 
   const handleImageSelect = () => {
-    // This is a placeholder for Firebase Storage upload logic.
-    // We'll just set a placeholder image for demonstration.
+    // This is a placeholder for actual image upload logic.
     console.log('Add photo clicked');
     setImagePreview('https://picsum.photos/seed/post-new/600/400');
   };

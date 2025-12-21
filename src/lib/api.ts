@@ -3,29 +3,43 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
 /**
- * Performs the login handshake.
- * Sends the Firebase ID token to the backend to verify and get/create a user.
- * @param token - The Firebase ID token from the signed-in user.
+ * Performs a fake login handshake for demonstration.
+ * In a real app, you would send a token to be verified.
+ * @param token - An authentication token.
  * @returns The user data from the Spring Boot backend.
  */
-export async function loginHandshake(token: string): Promise<{ id: string, firebaseUid: string, email: string, name: string }> {
+export async function loginHandshake(token: string): Promise<{ id: string, userId: string, email: string, name: string }> {
+  // We're not using the token, but we keep it in the function signature
+  // to match the original hybrid architecture design.
+  console.log("Performing login handshake. In a real app, this token would be verified:", token);
+
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+       // In a real app, you'd send the token for verification
       'Authorization': `Bearer ${token}`
     },
+     // In a real app, you might send other details, but for this demo, we can send a dummy user ID
+     body: JSON.stringify({ userId: 'user-1-abc' }),
   });
 
   if (!response.ok) {
     const errorBody = await response.text();
+    // Simulate a successful response if the backend is not running
+    if (response.status === 404 || response.status === 500) {
+        console.warn("Login handshake failed, backend not reachable. Simulating success for browser-only mode.");
+        const mockUser = { id: 'mock-id-1', userId: 'user-1-abc', email: 'user@example.com', name: 'Mock User' };
+        localStorage.setItem('userId', mockUser.userId);
+        return mockUser;
+    }
     throw new Error(`Login handshake failed: ${errorBody}`);
   }
 
   const user = await response.json();
   
   // Store the UID from your own backend's database
-  localStorage.setItem('firebaseUid', user.firebaseUid);
+  localStorage.setItem('userId', user.userId);
 
   return user;
 }
@@ -34,7 +48,7 @@ export async function loginHandshake(token: string): Promise<{ id: string, fireb
 interface CreatePostPayload {
   content: string;
   imageUrl: string | null;
-  firebaseUid: string;
+  userId: string;
 }
 
 /**

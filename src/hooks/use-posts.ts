@@ -26,7 +26,7 @@ export function usePosts() {
         imageUrl: post.imageUrl,
         timestamp: new Date(post.createdAt).toLocaleTimeString(), // Format timestamp
         author: { // Assuming backend returns author info or just a UID
-            id: post.firebaseUid,
+            id: post.userId,
             name: post.authorName || 'Anonymous', // Fallback name
             avatarId: 'user-1' // Default avatar for now
         },

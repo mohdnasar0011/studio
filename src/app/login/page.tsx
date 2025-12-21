@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 import { Flame } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -20,12 +22,22 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const handleSignIn = () => {
-    console.log('Sign in clicked');
+    // Simulate login by setting a dummy user ID and navigating to the app
+    localStorage.setItem('userId', 'user-1-abc');
+    toast({
+      title: 'Signed In!',
+      description: 'Welcome back.',
+    });
+    router.push('/');
   };
 
   const handleGoogleSignIn = () => {
-    console.log('Continue with Google clicked');
+    // This would be your real Google Sign-in flow
+    handleSignIn();
   };
 
   return (
