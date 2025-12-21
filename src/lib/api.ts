@@ -1,47 +1,25 @@
 // This file contains all the API calls to your Spring Boot backend.
+// This is a MOCK API that simulates a backend for UI development.
+
+import { chatThreads, currentUser, feedPosts, matchProfiles, users } from "./data";
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
+const MOCK_API_DELAY = 500; // ms
+
 /**
- * Performs a fake login handshake for demonstration.
- * In a real app, you would send a token to be verified.
- * @param token - An authentication token.
- * @returns The user data from the Spring Boot backend.
+ * Simulates a login handshake.
+ * @param token - An authentication token (unused in mock).
+ * @returns A promise resolving to mock user data.
  */
 export async function loginHandshake(token: string): Promise<{ id: string, userId: string, email: string, name: string }> {
-  // We're not using the token, but we keep it in the function signature
-  // to match the original hybrid architecture design.
-  console.log("Performing login handshake. In a real app, this token would be verified:", token);
-
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-       // In a real app, you'd send the token for verification
-      'Authorization': `Bearer ${token}`
-    },
-     // In a real app, you might send other details, but for this demo, we can send a dummy user ID
-     body: JSON.stringify({ userId: 'user-1-abc' }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    // Simulate a successful response if the backend is not running
-    if (response.status === 404 || response.status === 500) {
-        console.warn("Login handshake failed, backend not reachable. Simulating success for browser-only mode.");
-        const mockUser = { id: 'mock-id-1', userId: 'user-1-abc', email: 'user@example.com', name: 'Mock User' };
-        localStorage.setItem('userId', mockUser.userId);
-        return mockUser;
-    }
-    throw new Error(`Login handshake failed: ${errorBody}`);
-  }
-
-  const user = await response.json();
+  console.log("Mock Login Handshake:", token);
   
-  // Store the UID from your own backend's database
-  localStorage.setItem('userId', user.userId);
-
-  return user;
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  
+  const mockUser = { id: currentUser.id, userId: currentUser.id, email: 'user@example.com', name: currentUser.name };
+  localStorage.setItem('userId', mockUser.userId);
+  return mockUser;
 }
 
 
@@ -52,70 +30,70 @@ interface CreatePostPayload {
 }
 
 /**
- * Creates a new post by sending the data to the Spring Boot backend.
+ * Simulates creating a new post. The post is added to an in-memory array.
  * @param payload - The post data.
  */
 export async function createPost(payload: CreatePostPayload) {
-  const response = await fetch(`${API_BASE_URL}/posts`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+  console.log("Mock Create Post:", payload);
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
 
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Failed to create post: ${errorBody}`);
-  }
+  const author = users.find(u => u.id === payload.userId) || currentUser;
 
-  return response.json();
+  const newPost = {
+    id: `post-${Date.now()}`,
+    content: payload.content,
+    imageUrl: payload.imageUrl,
+    createdAt: new Date().toISOString(),
+    userId: payload.userId,
+    authorName: author.name,
+    upvotes: 0,
+    downvotes: 0,
+    comments: 0,
+  };
+  
+  // This is a mock implementation, so we're just logging it.
+  // In a real mock, you might push this to an in-memory array.
+  console.log("New post created (in-memory):", newPost);
+
+  return newPost;
 }
 
 /**
- * Fetches all posts from the Spring Boot backend.
+ * Fetches mock posts.
  */
 export async function getPosts() {
-  const response = await fetch(`${API_BASE_URL}/posts`, {
-    cache: 'no-store', // Ensure we always get the latest posts
-  });
+  console.log("Mock Get Posts");
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  
+  // We'll return a format that mimics a real backend response
+  const backendPosts = feedPosts.map(p => ({
+    id: p.id,
+    content: p.content,
+    imageUrl: p.imageUrl,
+    createdAt: new Date().toISOString(),
+    userId: p.author.id,
+    authorName: p.author.name,
+    upvotes: p.upvotes,
+    comments: p.comments
+  }));
 
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Failed to fetch posts: ${errorBody}`);
-  }
-
-  return response.json();
+  return Promise.resolve(backendPosts);
 }
 
 /**
- * Fetches all match profiles from the Spring Boot backend.
+ * Fetches mock match profiles.
  */
 export async function getMatchProfiles() {
-  const response = await fetch(`${API_BASE_URL}/matches`, {
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Failed to fetch match profiles: ${errorBody}`);
-  }
-
-  return response.json();
+  console.log("Mock Get Match Profiles");
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  return Promise.resolve([...matchProfiles]);
 }
 
 /**
- * Fetches all chat threads from the Spring Boot backend.
+ * Fetches mock chat threads.
  */
 export async function getChatThreads() {
-  const response = await fetch(`${API_BASE_URL}/chat-threads`, {
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Failed to fetch chat threads: ${errorBody}`);
-  }
-
-  return response.json();
+  console.log("Mock Get Chat Threads");
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  return Promise.resolve([...chatThreads]);
 }
