@@ -19,9 +19,9 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export default function LoginPage() {
-  const handleSignIn = () => {
-    console.log('Sign in clicked');
+export default function SignUpPage() {
+  const handleSignUp = () => {
+    console.log('Sign up clicked');
   };
 
   const handleGoogleSignIn = () => {
@@ -34,11 +34,15 @@ export default function LoginPage() {
         <div className="mb-8 flex flex-col items-center">
           <Flame className="mb-4 h-12 w-12 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight">
-            Find your FitConnect.
+            Create your Account
           </h1>
         </div>
 
         <div className="space-y-4">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" type="text" placeholder="Alex Doe" />
+          </div>
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="you@example.com" />
@@ -49,8 +53,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Button className="mt-6 w-full" onClick={handleSignIn}>
-          Sign In
+        <Button className="mt-6 w-full" onClick={handleSignUp}>
+          Sign Up
         </Button>
 
         <div className="my-6 flex items-center">
@@ -69,9 +73,9 @@ export default function LoginPage() {
         </Button>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-medium text-primary hover:underline">
-            Sign up
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-primary hover:underline">
+            Sign in
           </Link>
         </p>
       </div>
