@@ -77,12 +77,7 @@ export default function UserProfile({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-px border-y bg-border">
-        <div className="flex flex-col items-center justify-center gap-1 bg-background p-4">
-          <Dumbbell className="h-6 w-6 text-primary" />
-          <p className="text-sm font-semibold">12</p>
-          <p className="text-xs text-muted-foreground">Workouts</p>
-        </div>
+      <div className="grid grid-cols-1 gap-px border-y bg-border">
         <div className="flex flex-col items-center justify-center gap-1 bg-background p-4">
           <Users className="h-6 w-6 text-primary" />
           <p className="text-sm font-semibold">5</p>
