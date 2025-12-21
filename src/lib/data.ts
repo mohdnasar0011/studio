@@ -1,6 +1,7 @@
 export type User = {
   id: string;
   name: string;
+  email: string;
   avatarId: string;
   bio: string;
 };
@@ -49,18 +50,23 @@ export type ChatThread = {
 };
 
 export const users: User[] = [
-  { id: 'user-1', name: 'Alex Doe', avatarId: 'user-1', bio: 'Morning runner and evening lifter. Looking for a buddy to keep me accountable for my weekend long runs!' },
-  { id: 'user-2', name: 'Samantha G.', avatarId: 'user-2', bio: 'Yoga enthusiast and occasional hiker. I love finding new trails.' },
-  { id: 'user-3', name: 'Mike Ross', avatarId: 'user-3', bio: 'Gym rat. Usually lifting weights or playing basketball.' },
-  { id: 'user-4', name: 'Jessica P.', avatarId: 'user-4', bio: 'Casual cyclist and weekend warrior. Let\'s go for a ride!' },
-  { id: 'user-5', name: 'Chris Evans', avatarId: 'user-5', bio: 'Training for a marathon. Always looking for running partners.' },
-  { id: 'match-1', name: 'Jenna', avatarId: 'match-1', bio: 'Runner and aspiring yogi. Let\'s find our zen.' },
-  { id: 'match-2', name: 'David', avatarId: 'match-2', bio: 'Crossfit and powerlifting. Let\'s get strong.' },
-  { id: 'match-3', name: 'Chloe', avatarId: 'match-3', bio: 'I love dancing and group classes. Energy is everything!' },
-  { id: 'match-4', name: 'Mark', avatarId: 'match-4', bio: 'Swimmer and triathlete in training.' },
+  { id: 'user-1', name: 'Alex Doe', email: 'alex@example.com', avatarId: 'user-1', bio: 'Morning runner and evening lifter. Looking for a buddy to keep me accountable for my weekend long runs!' },
+  { id: 'user-2', name: 'Samantha G.', email: 'samantha@example.com', avatarId: 'user-2', bio: 'Yoga enthusiast and occasional hiker. I love finding new trails.' },
+  { id: 'user-3', name: 'Mike Ross', email: 'mike@example.com', avatarId: 'user-3', bio: 'Gym rat. Usually lifting weights or playing basketball.' },
+  { id: 'user-4', name: 'Jessica P.', email: 'jessica@example.com', avatarId: 'user-4', bio: 'Casual cyclist and weekend warrior. Let\'s go for a ride!' },
+  { id: 'user-5', name: 'Chris Evans', email: 'chris@example.com', avatarId: 'user-5', bio: 'Training for a marathon. Always looking for running partners.' },
+  { id: 'match-1', name: 'Jenna', email: 'jenna@example.com', avatarId: 'match-1', bio: 'Runner and aspiring yogi. Let\'s find our zen.' },
+  { id: 'match-2', name: 'David', email: 'david@example.com', avatarId: 'match-2', bio: 'Crossfit and powerlifting. Let\'s get strong.' },
+  { id: 'match-3', name: 'Chloe', email: 'chloe@example.com', avatarId: 'match-3', bio: 'I love dancing and group classes. Energy is everything!' },
+  { id: 'match-4', name: 'Mark', email: 'mark@example.com', avatarId: 'match-4', bio: 'Swimmer and triathlete in training.' },
 ];
 
-export const currentUser = users[0];
+export const getCurrentUser = (): User | undefined => {
+    if (typeof window === 'undefined') return users[0];
+    const userId = localStorage.getItem('userId');
+    return users.find(u => u.id === userId);
+}
+
 
 export const feedPosts: FeedPost[] = [
   {
@@ -72,7 +78,7 @@ export const feedPosts: FeedPost[] = [
     imageUrl: "https://images.unsplash.com/photo-1545216560-0699022d5a53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwYXJrJTIwcGF0aHxlbnwwfHx8fDE3NjYzMDUxOTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
     upvotes: 12,
     downvotes: 1,
-    comments: 4,
+    comments: 2,
     commentsData: [
         { id: 'comment-1-1', author: users[1], content: "I'm in! See you there.", timestamp: "2024-07-29T10:05:00Z" },
         { id: 'comment-1-2', author: users[3], content: "What's the pace like?", timestamp: "2024-07-29T10:07:00Z" },

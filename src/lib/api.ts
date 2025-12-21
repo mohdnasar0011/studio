@@ -1,7 +1,7 @@
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
-import { chatThreads, currentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment, type User } from "./data";
+import { chatThreads, getCurrentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment, type User } from "./data";
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -23,7 +23,13 @@ export async function loginHandshake(email?: string, password?: string): Promise
   
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   
-  const mockUser = { id: currentUser.id, userId: currentUser.id, email: 'user@example.com', name: currentUser.name };
+  const user = users.find(u => u.email === email);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+  
+  const mockUser = { id: user.id, userId: user.id, email: user.email, name: user.name };
   localStorage.setItem('userId', mockUser.userId);
   return mockUser;
 }
@@ -53,7 +59,8 @@ export async function createPost(payload: CreatePostPayload) {
   console.log("Mock Create Post:", payload);
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
 
-  const author = users.find(u => u.id === payload.userId) || currentUser;
+  const author = users.find(u => u.id === payload.userId) || getCurrentUser();
+  if (!author) throw new Error("User not found to create post");
 
   const newPost = {
     id: `post-${Date.now()}`,
@@ -172,6 +179,9 @@ export async function getComments(postId: string): Promise<Comment[]> {
 export async function addComment(postId: string, content: string): Promise<Comment> {
     console.log(`Mock Add Comment to post ${postId}: ${content}`);
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+    
+    const currentUser = getCurrentUser();
+    if (!currentUser) throw new Error("User must be logged in to comment.");
 
     const newComment: Comment = {
         id: `comment-${Date.now()}`,
@@ -229,7 +239,7 @@ export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'
             targetPost.upvotes = (targetPost.upvotes || 0) + 1;
         } else {
             // Downvote just logs, no change to count for this mock
-            console.log("Downvote recorded");
+            targetPost.upvotes = (targetPost.upvotes || 0) - 1;
         }
         return { success: true, newUpvotes: targetPost.upvotes };
     }

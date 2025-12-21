@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -17,7 +17,7 @@ import { Send, Loader2, MessageCircle } from 'lucide-react';
 import { useComments } from '@/hooks/use-comments';
 import { getImageById } from '@/lib/placeholder-images';
 import { formatDistanceToNow } from 'date-fns';
-import { currentUser } from '@/lib/data';
+import { getCurrentUser } from '@/lib/data';
 import Link from 'next/link';
 
 export default function CommentsSheet({
@@ -33,8 +33,15 @@ export default function CommentsSheet({
   const { comments, isLoading, addComment } = useComments(open ? postId : null);
   const [newComment, setNewComment] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
   
-  const currentUserImage = getImageById(currentUser.avatarId);
+  useEffect(() => {
+    if (open) {
+      setCurrentUser(getCurrentUser());
+    }
+  }, [open]);
+
+  const currentUserImage = currentUser ? getImageById(currentUser.avatarId) : null;
 
 
   const handleSend = async () => {
@@ -97,7 +104,7 @@ export default function CommentsSheet({
             </div>
         </ScrollArea>
         
-        <footer className="sticky bottom-0 border-t bg-background p-2">
+        {currentUser && <footer className="sticky bottom-0 border-t bg-background p-2">
             <div className="flex items-center gap-2">
                 <Avatar className="h-9 w-9">
                     {currentUserImage && <AvatarImage src={currentUserImage.imageUrl} alt={currentUser.name} data-ai-hint={currentUserImage.imageHint} />}
@@ -120,7 +127,7 @@ export default function CommentsSheet({
                     <span className="sr-only">Send Comment</span>
                 </Button>
             </div>
-        </footer>
+        </footer>}
       </SheetContent>
     </Sheet>
   );

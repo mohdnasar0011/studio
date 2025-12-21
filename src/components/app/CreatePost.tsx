@@ -15,7 +15,7 @@ import { Camera, MapPin, Dumbbell, X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { createPost } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
-import { currentUser } from '@/lib/data';
+import { getCurrentUser } from '@/lib/data';
 
 export default function CreatePost({
   children,
@@ -31,9 +31,8 @@ export default function CreatePost({
   const [open, setOpen] = useState(false);
 
   const handlePost = async () => {
-    // In a real app, you'd get the current user's ID from auth state.
-    const userId = currentUser.id;
-    if (!userId) {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
       toast({
         variant: 'destructive',
         title: 'Not Signed In',
@@ -52,7 +51,7 @@ export default function CreatePost({
       await createPost({
         content: postContent,
         imageUrl: imageUrl,
-        userId: userId,
+        userId: currentUser.id,
       });
 
       toast({
