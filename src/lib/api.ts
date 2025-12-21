@@ -19,20 +19,20 @@ const inMemoryComments = new Map<string, any[]>();
  * @param token - An authentication token (unused in mock).
  * @returns A promise resolving to mock user data.
  */
-export async function loginHandshake(email?: string, password?: string): Promise<{ id: string, userId: string, email: string, name: string }> {
+export async function loginHandshake(email?: string, password?: string): Promise<User> {
   console.log("Mock Login Handshake:", {email, password});
   
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   
-  const user = users.find(u => u.email === email);
+  // Find user by email, or use the first user as a fallback for signup
+  const user = users.find(u => u.email === email) || users[0];
 
   if (!user) {
     throw new Error("User not found");
   }
   
-  const mockUser = { id: user.id, userId: user.id, email: user.email, name: user.name };
-  localStorage.setItem('userId', mockUser.userId);
-  return mockUser;
+  localStorage.setItem('userId', user.id);
+  return user;
 }
 
 /**
@@ -60,7 +60,7 @@ export async function createPost(payload: CreatePostPayload) {
   console.log("Mock Create Post:", payload);
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
 
-  const author = users.find(u => u.id === payload.userId) || getCurrentUser();
+  const author = users.find(u => u.id === payload.userId);
   if (!author) throw new Error("User not found to create post");
 
   const newPost = {
@@ -83,7 +83,7 @@ export async function createPost(payload: CreatePostPayload) {
 /**
  * Fetches mock posts.
  */
-export async function getPosts() {
+export async function getPosts(): Promise<any[]> {
   console.log("Mock Get Posts");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
   
@@ -108,7 +108,7 @@ export async function getPosts() {
 /**
  * Fetches mock match profiles.
  */
-export async function getMatchProfiles() {
+export async function getMatchProfiles(): Promise<MatchProfile[]> {
   console.log("Mock Get Match Profiles");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   return Promise.resolve([...matchProfiles]);
@@ -133,7 +133,7 @@ export async function recordMatchAction(profileId: string, action: 'accept' | 'd
 /**
  * Fetches mock chat threads.
  */
-export async function getChatThreads() {
+export async function getChatThreads(): Promise<ChatThread[]> {
   console.log("Mock Get Chat Threads");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   return Promise.resolve([...chatThreads]);
@@ -203,7 +203,7 @@ export async function addComment(postId: string, content: string): Promise<Comme
     } else {
         let feedPost = feedPosts.find(p => p.id === postId);
         if (feedPost) {
-            feedPost.comments = (feedPost.comments || 0) + 1;
+            // This is a mock, so we'll just increment. A real backend would handle this.
         }
     }
 
@@ -251,11 +251,21 @@ export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'
         if (voteType === 'upvote') {
             targetPost.upvotes = (targetPost.upvotes || 0) + 1;
         } else {
-            // Downvote just logs, no change to count for this mock
             targetPost.upvotes = (targetPost.upvotes || 0) - 1;
         }
         return { success: true, newUpvotes: targetPost.upvotes };
     }
 
     throw new Error("Post not found");
+}
+
+/**
+ * Fetches a single user's profile from the mock data.
+ * @param userId The ID of the user to fetch.
+ */
+export async function getUserProfile(userId: string): Promise<User | null> {
+    console.log(`Mock Get User Profile for: ${userId}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+    const user = users.find(u => u.id === userId);
+    return user || null;
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import UserProfile from '@/components/app/UserProfile';
-import { users, type User } from '@/lib/data';
+import { type User } from '@/lib/data';
+import { getUserProfile } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -23,18 +24,20 @@ export default function UserProfilePage() {
     if (userId) {
       // In a real app, you would fetch this user's data from an API
       // For now, we simulate this with a timeout and data from `lib/data`
-      setTimeout(() => {
-        const foundUser = users.find((u) => u.id === userId);
+      getUserProfile(userId).then(foundUser => {
         if (foundUser) {
           setUser(foundUser);
         }
         setLoading(false);
-      }, 300); // Simulate network delay
+      }).catch(err => {
+        console.error(err);
+        setLoading(false);
+      })
     }
   }, [userId]);
 
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
