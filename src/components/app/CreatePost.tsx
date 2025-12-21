@@ -11,28 +11,72 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Camera,
-  MapPin,
-  Dumbbell,
-  X,
-} from 'lucide-react';
+import { Camera, MapPin, Dumbbell, X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { createPost } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
-export default function CreatePost({ children }: { children: React.ReactNode }) {
+export default function CreatePost({
+  children,
+  onPostCreated,
+}: {
+  children: React.ReactNode;
+  onPostCreated: () => void;
+}) {
+  const { toast } = useToast();
   const [postContent, setPostContent] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isPosting, setIsPosting] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const handlePost = () => {
-    console.log('Post submitted:', { content: postContent, image: imagePreview });
-    // Here you would typically call an API to create the post
-    // For now, we just log it.
+  const handlePost = async () => {
+    const firebaseUid = localStorage.getItem('firebaseUid');
+    if (!firebaseUid) {
+      toast({
+        variant: 'destructive',
+        title: 'Not Signed In',
+        description: 'You must be signed in to create a post.',
+      });
+      return;
+    }
+    if (!postContent.trim() && !imagePreview) return;
+
+    setIsPosting(true);
+    try {
+      // In a real app, you'd upload the image to Firebase Storage first.
+      // For now, we'll use the placeholder URL directly if it exists.
+      const imageUrl = imagePreview;
+
+      await createPost({
+        content: postContent,
+        imageUrl: imageUrl,
+        firebaseUid: firebaseUid,
+      });
+
+      toast({
+        title: 'Post Created!',
+        description: 'Your post is now live.',
+      });
+      onPostCreated(); // Notify parent that a post was created
+      setPostContent('');
+      setImagePreview(null);
+      setOpen(false); // Close the dialog
+    } catch (error) {
+      console.error('Failed to create post:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'Could not create your post. Please try again.',
+      });
+    } finally {
+      setIsPosting(false);
+    }
   };
 
   const handleImageSelect = () => {
-    // This is a placeholder. In a real app, you'd open a file picker.
+    // This is a placeholder for Firebase Storage upload logic.
+    // We'll just set a placeholder image for demonstration.
     console.log('Add photo clicked');
-    // For demonstration, we'll set a placeholder image.
     setImagePreview('https://picsum.photos/seed/post-new/600/400');
   };
 
@@ -41,17 +85,11 @@ export default function CreatePost({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader className="flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle>Create Post</DialogTitle>
-          <DialogClose asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Cancel</span>
-            </Button>
-          </DialogClose>
         </DialogHeader>
 
         <div className="py-4">
@@ -85,11 +123,7 @@ export default function CreatePost({ children }: { children: React.ReactNode }) 
         <DialogFooter className="flex-col items-stretch gap-2 sm:flex-col sm:space-x-0">
           <div className="flex justify-between border-t pt-2">
             <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleImageSelect}
-              >
+              <Button variant="ghost" size="icon" onClick={handleImageSelect}>
                 <Camera />
                 <span className="sr-only">Add Photo</span>
               </Button>
@@ -110,14 +144,14 @@ export default function CreatePost({ children }: { children: React.ReactNode }) 
                 <span className="sr-only">Tag Activity</span>
               </Button>
             </div>
-            <DialogClose asChild>
-              <Button
-                onClick={handlePost}
-                disabled={!postContent.trim() && !imagePreview}
-              >
-                Post
-              </Button>
-            </DialogClose>
+            
+            <Button
+              onClick={handlePost}
+              disabled={isPosting || (!postContent.trim() && !imagePreview)}
+            >
+              {isPosting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPosting ? 'Posting...' : 'Post'}
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>

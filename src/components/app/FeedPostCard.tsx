@@ -7,22 +7,32 @@ import { ArrowDown, ArrowUp, MessageSquare } from "lucide-react";
 import Image from "next/image";
 
 export default function FeedPostCard({ post }: { post: FeedPost }) {
-  const authorImage = getImageById(post.author.avatarId);
-  const postImage = post.imageId ? getImageById(post.imageId) : null;
+  // The author object might come from the backend directly
+  const authorImage = post.author?.avatarId ? getImageById(post.author.avatarId) : null;
+  const postImage = post.imageUrl ? { imageUrl: post.imageUrl, imageHint: 'post image' } : null;
 
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-start gap-3 space-y-0 p-4">
-        <Avatar className="h-10 w-10 border">
-          {authorImage && <AvatarImage src={authorImage.imageUrl} alt={post.author.name} data-ai-hint={authorImage.imageHint}/>}
-          <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-semibold">{post.author.name}</p>
+        {post.author ? (
+          <>
+            <Avatar className="h-10 w-10 border">
+              {authorImage && <AvatarImage src={authorImage.imageUrl} alt={post.author.name} data-ai-hint={authorImage.imageHint}/>}
+              <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm font-semibold">{post.author.name}</p>
+              </div>
+              <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1">
+             <p className="text-sm font-semibold">Anonymous</p>
+             <p className="text-xs text-muted-foreground">{post.timestamp}</p>
           </div>
-          <p className="text-xs text-muted-foreground">{post.timestamp}</p>
-        </div>
+        )}
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <p className="mb-4 text-sm leading-relaxed">{post.content}</p>

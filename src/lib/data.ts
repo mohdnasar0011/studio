@@ -9,7 +9,8 @@ export type FeedPost = {
   author: User;
   timestamp: string;
   content: string;
-  imageId?: string;
+  imageUrl?: string; // Corrected from imageId
+  imageId?: string; // Keep for compatibility if needed elsewhere
   upvotes: number;
   downvotes: number;
   comments: number;
@@ -48,6 +49,7 @@ export const users: User[] = [
 
 export const currentUser = users[0];
 
+// This data is now fetched from the backend, but kept for fallback/reference.
 export const feedPosts: FeedPost[] = [
   {
     id: 'post-1',
@@ -55,6 +57,7 @@ export const feedPosts: FeedPost[] = [
     timestamp: '5m ago',
     content: "Anyone up for a 5k run at Central Park tomorrow morning around 7 AM? Planning to take the main loop.",
     imageId: 'post-1',
+    imageUrl: "https://images.unsplash.com/photo-1545216560-0699022d5a53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwYXJrJTIwcGF0aHxlbnwwfHx8fDE3NjYzMDUxOTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
     upvotes: 12,
     downvotes: 1,
     comments: 4,
@@ -74,6 +77,7 @@ export const feedPosts: FeedPost[] = [
     timestamp: '2h ago',
     content: "Is the basketball court at Pier 2 usually crowded on Saturdays? Thinking of shooting some hoops.",
     imageId: 'post-2',
+    imageUrl: "https://images.unsplash.com/photo-1602357280104-742c517a1d82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYXNrZXRiYWxsJTIwY291cnR8ZW58MHx8fHwxNzY2MjkzNDk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
     upvotes: 5,
     downvotes: 0,
     comments: 10,
