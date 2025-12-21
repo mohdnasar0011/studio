@@ -45,6 +45,10 @@ export const users: User[] = [
   { id: 'user-3', name: 'Mike Ross', avatarId: 'user-3' },
   { id: 'user-4', name: 'Jessica P.', avatarId: 'user-4' },
   { id: 'user-5', name: 'Chris Evans', avatarId: 'user-5' },
+  { id: 'match-1', name: 'Jenna', avatarId: 'match-1' },
+  { id: 'match-2', name: 'David', avatarId: 'match-2' },
+  { id: 'match-3', name: 'Chloe', avatarId: 'match-3' },
+  { id: 'match-4', name: 'Mark', avatarId: 'match-4' },
 ];
 
 export const currentUser = users[0];
