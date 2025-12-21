@@ -26,13 +26,15 @@ export default function BottomNav({ onPostCreated }: { onPostCreated: () => void
           if (item.href === 'create-post') {
             return (
               <CreatePost key={item.href} onPostCreated={onPostCreated}>
-                <Button
-                  variant="ghost"
-                  className="flex h-16 w-16 -translate-y-4 flex-col items-center justify-center gap-1.5 rounded-full bg-primary p-2 text-primary-foreground shadow-lg"
+                 <div
+                  className={cn(
+                    'flex flex-col items-center gap-1.5 rounded-md p-2 text-xs font-medium transition-colors w-20 cursor-pointer',
+                    'text-muted-foreground hover:text-foreground'
+                  )}
                 >
-                  <item.icon className="h-7 w-7" />
-                  <span className="sr-only">{item.label}</span>
-                </Button>
+                  <item.icon className="h-6 w-6" />
+                  <span>{item.label}</span>
+                </div>
               </CreatePost>
             );
           }
