@@ -89,3 +89,19 @@ export async function getMatchProfiles() {
 
   return response.json();
 }
+
+/**
+ * Fetches all chat threads from the Spring Boot backend.
+ */
+export async function getChatThreads() {
+  const response = await fetch(`${API_BASE_URL}/chat-threads`, {
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Failed to fetch chat threads: ${errorBody}`);
+  }
+
+  return response.json();
+}

@@ -1,22 +1,70 @@
+
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { chatThreads } from "@/lib/data";
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useChatThreads } from '@/hooks/use-chat-threads';
 import { getImageById } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
-import { Users } from "lucide-react";
+import { Users, MessageSquare, Loader2 } from "lucide-react";
 import Link from "next/link";
 
+const ChatThreadSkeleton = () => (
+    <div className="flex items-center gap-4 p-4">
+        <Skeleton className="h-12 w-12 rounded-full" />
+        <div className="flex-1 space-y-2">
+            <div className="flex justify-between">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-3 w-1/6" />
+            </div>
+            <Skeleton className="h-4 w-4/5" />
+        </div>
+    </div>
+);
+
 export default function ChatPage() {
-  return (
-    <div>
-      <header className="sticky top-0 z-10 border-b bg-background/80 p-4 backdrop-blur-sm">
-        <h1 className="text-2xl font-bold">Messages</h1>
-      </header>
+  const { threads, isLoading, error, refetch } = useChatThreads();
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div>
+          <ChatThreadSkeleton />
+          <ChatThreadSkeleton />
+          <ChatThreadSkeleton />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex h-48 flex-col items-center justify-center gap-4 p-4 text-center">
+            <h2 className="text-xl font-bold text-destructive">Oops!</h2>
+            <p className="text-muted-foreground">{error}</p>
+            <Button onClick={refetch}>Try Again</Button>
+        </div>
+      );
+    }
+    
+    if (threads.length === 0) {
+        return (
+             <div className="flex h-48 flex-col items-center justify-center gap-2 p-4 text-center">
+                <MessageSquare className="h-12 w-12 text-muted-foreground/50" />
+                <h2 className="text-xl font-bold">No Messages</h2>
+                <p className="text-muted-foreground">Your new matches and conversations will appear here.</p>
+            </div>
+        )
+    }
+
+    return (
       <div className="divide-y">
-        {chatThreads.map((thread) => {
+        {threads.map((thread) => {
+          // Placeholder logic for avatars. In a real app, participant data would be richer.
           const participant = thread.isGroup ? null : thread.participants[0];
           const avatar = thread.isGroup
             ? getImageById("group-avatar")
-            : participant ? getImageById(participant.avatarId) : null;
+            : participant ? getImageById(participant.avatarId || 'user-1') : null;
           
           return (
             <Link href="#" key={thread.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50">
@@ -29,7 +77,7 @@ export default function ChatPage() {
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-baseline justify-between">
                   <p className="font-semibold truncate">{thread.name}</p>
-                  <p className="text-xs text-muted-foreground">{thread.lastMessage.timestamp}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(thread.lastMessage.timestamp).toLocaleTimeString()}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className={cn(
@@ -49,6 +97,16 @@ export default function ChatPage() {
           );
         })}
       </div>
+    );
+  }
+
+
+  return (
+    <div>
+      <header className="sticky top-0 z-10 border-b bg-background/80 p-4 backdrop-blur-sm">
+        <h1 className="text-2xl font-bold">Messages</h1>
+      </header>
+      {renderContent()}
     </div>
   );
 }
