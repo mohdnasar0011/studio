@@ -6,6 +6,7 @@ import { getImageById } from "@/lib/placeholder-images";
 import { ArrowDown, ArrowUp, MessageSquare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import CommentsSheet from "./CommentsSheet";
 
 export default function FeedPostCard({ post }: { post: FeedPost }) {
   // The author object might come from the backend directly
@@ -62,10 +63,12 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
             <ArrowDown className="h-4 w-4" />
           </Button>
         </div>
-        <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
-          <MessageSquare className="h-4 w-4" />
-          <span>{post.comments} Comments</span>
-        </Button>
+        <CommentsSheet postId={post.id} commentCount={post.comments}>
+          <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
+            <MessageSquare className="h-4 w-4" />
+            <span>{post.comments} Comments</span>
+          </Button>
+        </CommentsSheet>
       </CardFooter>
     </Card>
   );

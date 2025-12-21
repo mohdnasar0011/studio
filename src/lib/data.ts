@@ -4,16 +4,24 @@ export type User = {
   avatarId: string;
 };
 
+export type Comment = {
+    id: string;
+    author: User;
+    content: string;
+    timestamp: string;
+};
+
 export type FeedPost = {
   id: string;
   author: User;
   timestamp: string;
   content: string;
-  imageUrl?: string; // Corrected from imageId
-  imageId?: string; // Keep for compatibility if needed elsewhere
+  imageUrl?: string;
+  imageId?: string;
   upvotes: number;
   downvotes: number;
   comments: number;
+  commentsData: Comment[];
 };
 
 export type MatchProfile = {
@@ -53,7 +61,6 @@ export const users: User[] = [
 
 export const currentUser = users[0];
 
-// This data is now fetched from the backend, but kept for fallback/reference.
 export const feedPosts: FeedPost[] = [
   {
     id: 'post-1',
@@ -65,6 +72,10 @@ export const feedPosts: FeedPost[] = [
     upvotes: 12,
     downvotes: 1,
     comments: 4,
+    commentsData: [
+        { id: 'comment-1-1', author: users[1], content: "I'm in! See you there.", timestamp: "2024-07-29T10:05:00Z" },
+        { id: 'comment-1-2', author: users[3], content: "What's the pace like?", timestamp: "2024-07-29T10:07:00Z" },
+    ]
   },
   {
     id: 'post-2',
@@ -74,6 +85,7 @@ export const feedPosts: FeedPost[] = [
     upvotes: 8,
     downvotes: 0,
     comments: 2,
+    commentsData: []
   },
   {
     id: 'post-3',
@@ -85,6 +97,9 @@ export const feedPosts: FeedPost[] = [
     upvotes: 5,
     downvotes: 0,
     comments: 10,
+    commentsData: [
+         { id: 'comment-3-1', author: users[4], content: "It can be, better to go early!", timestamp: "2024-07-29T08:30:00Z" },
+    ]
   },
 ];
 

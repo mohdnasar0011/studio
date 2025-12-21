@@ -1,7 +1,7 @@
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
-import { chatThreads, currentUser, feedPosts, matchProfiles, users, type FeedPost } from "./data";
+import { chatThreads, currentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment } from "./data";
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -9,6 +9,9 @@ const MOCK_API_DELAY = 500; // ms
 
 // In-memory store for new posts to simulate a database
 let inMemoryPosts: any[] = [];
+// In-memory store for comments, mapping postId to a list of comments
+const inMemoryComments = new Map<string, any[]>();
+
 
 /**
  * Simulates a login handshake.
@@ -51,7 +54,7 @@ export async function createPost(payload: CreatePostPayload) {
     authorName: author.name,
     upvotes: Math.floor(Math.random() * 5),
     downvotes: 0,
-    comments: Math.floor(Math.random() * 10),
+    comments: 0,
   };
   
   inMemoryPosts.unshift(newPost); // Add to the beginning of the array
@@ -75,11 +78,11 @@ export async function getPosts() {
     userId: p.author.id,
     authorName: p.author.name,
     upvotes: p.upvotes,
-    comments: p.comments
+    comments: (inMemoryComments.get(p.id) || p.commentsData).length
   }));
   
   // Combine initial posts with newly created ones
-  const allPosts = [...inMemoryPosts, ...backendPosts];
+  const allPosts = [...inMemoryPosts.map(p => ({...p, comments: (inMemoryComments.get(p.id) || []).length})), ...backendPosts];
 
   return Promise.resolve(allPosts);
 }
@@ -117,4 +120,44 @@ export async function addBuddy(buddyId: string): Promise<{ success: boolean }> {
   } else {
     throw new Error("User not found");
   }
+}
+
+/**
+ * Fetches mock comments for a given post.
+ * @param postId The ID of the post.
+ */
+export async function getComments(postId: string): Promise<Comment[]> {
+    console.log(`Mock Get Comments for post: ${postId}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
+
+    const post = feedPosts.find(p => p.id === postId);
+    const postComments = post ? post.commentsData : [];
+    
+    const newComments = inMemoryComments.get(postId) || [];
+
+    return Promise.resolve([...postComments, ...newComments]);
+}
+
+/**
+ * Simulates adding a comment to a post.
+ * @param postId The ID of the post.
+ * @param content The text content of the comment.
+ */
+export async function addComment(postId: string, content: string): Promise<Comment> {
+    console.log(`Mock Add Comment to post ${postId}: ${content}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+
+    const newComment: Comment = {
+        id: `comment-${Date.now()}`,
+        author: currentUser,
+        content,
+        timestamp: new Date().toISOString(),
+    };
+
+    if (!inMemoryComments.has(postId)) {
+        inMemoryComments.set(postId, []);
+    }
+    inMemoryComments.get(postId)?.push(newComment);
+
+    return newComment;
 }
