@@ -14,6 +14,7 @@ import { useState } from "react";
 export default function FeedPostCard({ post }: { post: FeedPost }) {
   const { toast } = useToast();
   const [upvotes, setUpvotes] = useState(post.upvotes);
+  const [commentCount, setCommentCount] = useState(post.comments);
 
   // The author object might come from the backend directly
   const authorImage = post.author?.avatarId ? getImageById(post.author.avatarId) : null;
@@ -23,6 +24,8 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
     // Optimistic UI update
     if (voteType === 'upvote') {
       setUpvotes(prev => prev + 1);
+    } else {
+      setUpvotes(prev => prev - 1);
     }
     
     voteOnPost(post.id, voteType).then(result => {
@@ -32,6 +35,8 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
       // Revert optimistic update on failure
       if (voteType === 'upvote') {
         setUpvotes(prev => prev - 1);
+      } else {
+        setUpvotes(prev => prev + 1);
       }
       console.error(`Failed to ${voteType} post`, err);
       toast({
@@ -40,6 +45,10 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
         description: 'Could not record your vote. Please try again.'
       });
     });
+  };
+  
+  const onCommentAdded = () => {
+    setCommentCount(prev => prev + 1);
   };
 
   return (
@@ -92,10 +101,10 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
             <ArrowDown className="h-4 w-4" />
           </Button>
         </div>
-        <CommentsSheet postId={post.id} commentCount={post.comments}>
+        <CommentsSheet postId={post.id} commentCount={commentCount} onCommentAdded={onCommentAdded}>
           <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
             <MessageSquare className="h-4 w-4" />
-            <span>{post.comments} Comments</span>
+            <span>{commentCount} Comments</span>
           </Button>
         </CommentsSheet>
       </CardFooter>

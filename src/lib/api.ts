@@ -1,3 +1,4 @@
+
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
@@ -194,6 +195,18 @@ export async function addComment(postId: string, content: string): Promise<Comme
         inMemoryComments.set(postId, []);
     }
     inMemoryComments.get(postId)?.push(newComment);
+    
+    // Also update the comment count on the post object itself
+    let inMemoryPost = inMemoryPosts.find(p => p.id === postId);
+    if (inMemoryPost) {
+        inMemoryPost.comments = (inMemoryPost.comments || 0) + 1;
+    } else {
+        let feedPost = feedPosts.find(p => p.id === postId);
+        if (feedPost) {
+            feedPost.comments = (feedPost.comments || 0) + 1;
+        }
+    }
+
 
     return newComment;
 }

@@ -24,10 +24,12 @@ export default function CommentsSheet({
   postId,
   commentCount,
   children,
+  onCommentAdded,
 }: {
   postId: string;
   commentCount: number;
   children: React.ReactNode;
+  onCommentAdded: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const { comments, isLoading, addComment } = useComments(open ? postId : null);
@@ -50,6 +52,7 @@ export default function CommentsSheet({
     try {
       await addComment(newComment);
       setNewComment('');
+      onCommentAdded();
     } catch (error) {
       console.error("Failed to add comment:", error);
     } finally {
