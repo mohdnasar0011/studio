@@ -173,4 +173,11 @@ Your backend should expose the following RESTful endpoints.
 - **Authorization**: `Bearer <token>`
 - **Response**: `[{ "id": "chat-1", "name": "Saturday Run Group", "isGroup": true, ... }, ...]`
 
-**(Note:** Real-time chat functionality, including fetching messages for a thread and sending messages, typically requires WebSockets. The current mock implementation simulates this with polling and timeouts, but a production backend should use a WebSocket-based approach.)
+#### Real-time Chat (WebSockets)
+The frontend simulates real-time chat with API polling, but a production backend should use a WebSocket-based approach (e.g., using Spring WebSockets with STOMP).
+
+- **Connection**: A client connects to a WebSocket endpoint like `/ws`.
+- **Subscribe**: The client subscribes to a specific thread topic, e.g., `/topic/chat/{threadId}`.
+- **Send Message**: The client sends a message to a destination like `/app/chat/{threadId}/sendMessage`. The body would contain the message payload: `{ "content": "Hello world!" }`.
+- **Receive Message**: The server broadcasts new messages to all subscribers of the thread's topic.
+- **Typing Indicators**: For typing indicators, the client can send events to a destination like `/app/chat/{threadId}/typing`, and the server broadcasts these to other participants in the thread.
