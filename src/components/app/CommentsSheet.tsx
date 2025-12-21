@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -17,17 +17,17 @@ import { Send, Loader2, MessageCircle } from 'lucide-react';
 import { useComments } from '@/hooks/use-comments';
 import { getImageById } from '@/lib/placeholder-images';
 import { formatDistanceToNow } from 'date-fns';
-import { getCurrentUser } from '@/lib/data';
+import { getCurrentUser, type User } from '@/lib/data';
 import Link from 'next/link';
 
 export default function CommentsSheet({
   postId,
-  commentCount,
+  initialCommentCount,
   children,
   onCommentAdded,
 }: {
   postId: string;
-  commentCount: number;
+  initialCommentCount: number;
   children: React.ReactNode;
   onCommentAdded: () => void;
 }) {
@@ -35,19 +35,30 @@ export default function CommentsSheet({
   const { comments, isLoading, addComment } = useComments(open ? postId : null);
   const [newComment, setNewComment] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [currentUser, setCurrentUser] = useState(getCurrentUser());
-  
+  const [currentUser, setCurrentUser] = useState<User | undefined>(undefined);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (open) {
       setCurrentUser(getCurrentUser());
     }
   }, [open]);
 
+  useEffect(() => {
+    // Scroll to the bottom when new comments are added
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
+      if (viewport) {
+         viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      }
+    }
+  }, [comments]);
+
+
   const currentUserImage = currentUser ? getImageById(currentUser.avatarId) : null;
 
-
   const handleSend = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || isSending) return;
     setIsSending(true);
     try {
       await addComment(newComment);
@@ -55,6 +66,7 @@ export default function CommentsSheet({
       onCommentAdded();
     } catch (error) {
       console.error("Failed to add comment:", error);
+      // Optionally show a toast to the user
     } finally {
       setIsSending(false);
     }
@@ -65,10 +77,10 @@ export default function CommentsSheet({
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent side="bottom" className="mx-auto max-w-md h-full flex flex-col p-0">
         <SheetHeader className="p-4 border-b text-center">
-          <SheetTitle>Comments ({commentCount})</SheetTitle>
+          <SheetTitle>Comments ({comments.length > 0 ? comments.length : initialCommentCount})</SheetTitle>
         </SheetHeader>
         
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1" ref={scrollAreaRef}>
             <div className="p-4 space-y-4">
                 {isLoading && comments.length === 0 && (
                     <div className="flex justify-center items-center h-32">
@@ -93,10 +105,10 @@ export default function CommentsSheet({
                             </Avatar>
                         </Link>
                         <div className="flex-1">
-                            <p>
+                            <div>
                                 <Link href={`/profile/${comment.author.id}`} className="font-semibold text-sm hover:underline">{comment.author.name}</Link>
                                 <span className="ml-2 text-sm text-muted-foreground">{comment.content}</span>
-                            </p>
+                            </div>
                              <p className="text-xs text-muted-foreground mt-1">
                                 {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
                             </p>
@@ -119,6 +131,7 @@ export default function CommentsSheet({
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !isSending && handleSend()}
+                    disabled={isSending}
                 />
                 <Button 
                     size="icon" 

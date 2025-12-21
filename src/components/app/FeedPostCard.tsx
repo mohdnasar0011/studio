@@ -16,28 +16,18 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
   const [upvotes, setUpvotes] = useState(post.upvotes);
   const [commentCount, setCommentCount] = useState(post.comments);
 
-  // The author object might come from the backend directly
   const authorImage = post.author?.avatarId ? getImageById(post.author.avatarId) : null;
   const postImage = post.imageUrl ? { imageUrl: post.imageUrl, imageHint: 'post image' } : null;
 
   const handleVote = (voteType: 'upvote' | 'downvote') => {
-    // Optimistic UI update
-    if (voteType === 'upvote') {
-      setUpvotes(prev => prev + 1);
-    } else {
-      setUpvotes(prev => prev - 1);
-    }
+    const originalUpvotes = upvotes;
+    const newUpvotes = voteType === 'upvote' ? upvotes + 1 : upvotes - 1;
+    setUpvotes(newUpvotes);
     
     voteOnPost(post.id, voteType).then(result => {
-        // Sync with the actual new count from the backend
         setUpvotes(result.newUpvotes);
     }).catch(err => {
-      // Revert optimistic update on failure
-      if (voteType === 'upvote') {
-        setUpvotes(prev => prev - 1);
-      } else {
-        setUpvotes(prev => prev + 1);
-      }
+      setUpvotes(originalUpvotes);
       console.error(`Failed to ${voteType} post`, err);
       toast({
         variant: 'destructive',
@@ -101,7 +91,7 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
             <ArrowDown className="h-4 w-4" />
           </Button>
         </div>
-        <CommentsSheet postId={post.id} commentCount={commentCount} onCommentAdded={onCommentAdded}>
+        <CommentsSheet postId={post.id} initialCommentCount={commentCount} onCommentAdded={onCommentAdded}>
           <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground">
             <MessageSquare className="h-4 w-4" />
             <span>{commentCount} Comments</span>
