@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,7 +27,7 @@ const StatItem = ({ value, label }: { value: string | number; label: string }) =
 )
 
 export default function UserProfile({
-  user,
+  user: initialUser,
   isCurrentUser,
 }: {
   user: User;
@@ -34,6 +35,7 @@ export default function UserProfile({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const [user, setUser] = useState(initialUser);
   const { posts, isLoading: isLoadingPosts, refetch: refetchPosts } = usePosts();
   const [isAdding, setIsAdding] = useState(false);
   
@@ -62,6 +64,10 @@ export default function UserProfile({
       setIsAdding(false);
     }
   }
+
+  const handleProfileUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
   
   return (
     <div className="h-full">
@@ -108,14 +114,13 @@ export default function UserProfile({
         
         <div className="mt-4">
             <p className="mt-1 text-sm text-muted-foreground">
-                Morning runner and evening lifter. Looking for a buddy to keep me
-                accountable for my weekend long runs!
+                {user.bio}
             </p>
         </div>
 
         {isCurrentUser ? (
             <div className="mt-4 grid grid-cols-2 gap-3">
-                <EditProfileDialog user={user}>
+                <EditProfileDialog user={user} onProfileUpdate={handleProfileUpdate}>
                     <Button variant="outline" size="sm">
                         <Edit className="mr-2 h-4 w-4" /> Edit Profile
                     </Button>

@@ -1,7 +1,7 @@
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
-import { chatThreads, currentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment } from "./data";
+import { chatThreads, currentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment, type User } from "./data";
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -160,4 +160,25 @@ export async function addComment(postId: string, content: string): Promise<Comme
     inMemoryComments.get(postId)?.push(newComment);
 
     return newComment;
+}
+
+/**
+ * Simulates updating a user's profile.
+ * @param userId The ID of the user to update.
+ * @param updates The profile data to update.
+ */
+export async function updateProfile(userId: string, updates: Partial<Pick<User, 'bio' | 'avatarId'>>): Promise<User> {
+  console.log(`Mock Update Profile for user ${userId}:`, updates);
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+
+  const userIndex = users.findIndex(u => u.id === userId);
+  if (userIndex === -1) {
+    throw new Error("User not found");
+  }
+
+  // Update the in-memory user object
+  users[userIndex] = { ...users[userIndex], ...updates };
+
+  console.log("Updated user:", users[userIndex]);
+  return users[userIndex];
 }

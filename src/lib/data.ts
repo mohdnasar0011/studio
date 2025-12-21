@@ -2,6 +2,7 @@ export type User = {
   id: string;
   name: string;
   avatarId: string;
+  bio: string;
 };
 
 export type Comment = {
@@ -48,15 +49,15 @@ export type ChatThread = {
 };
 
 export const users: User[] = [
-  { id: 'user-1', name: 'Alex Doe', avatarId: 'user-1' },
-  { id: 'user-2', name: 'Samantha G.', avatarId: 'user-2' },
-  { id: 'user-3', name: 'Mike Ross', avatarId: 'user-3' },
-  { id: 'user-4', name: 'Jessica P.', avatarId: 'user-4' },
-  { id: 'user-5', name: 'Chris Evans', avatarId: 'user-5' },
-  { id: 'match-1', name: 'Jenna', avatarId: 'match-1' },
-  { id: 'match-2', name: 'David', avatarId: 'match-2' },
-  { id: 'match-3', name: 'Chloe', avatarId: 'match-3' },
-  { id: 'match-4', name: 'Mark', avatarId: 'match-4' },
+  { id: 'user-1', name: 'Alex Doe', avatarId: 'user-1', bio: 'Morning runner and evening lifter. Looking for a buddy to keep me accountable for my weekend long runs!' },
+  { id: 'user-2', name: 'Samantha G.', avatarId: 'user-2', bio: 'Yoga enthusiast and occasional hiker. I love finding new trails.' },
+  { id: 'user-3', name: 'Mike Ross', avatarId: 'user-3', bio: 'Gym rat. Usually lifting weights or playing basketball.' },
+  { id: 'user-4', name: 'Jessica P.', avatarId: 'user-4', bio: 'Casual cyclist and weekend warrior. Let\'s go for a ride!' },
+  { id: 'user-5', name: 'Chris Evans', avatarId: 'user-5', bio: 'Training for a marathon. Always looking for running partners.' },
+  { id: 'match-1', name: 'Jenna', avatarId: 'match-1', bio: 'Runner and aspiring yogi. Let\'s find our zen.' },
+  { id: 'match-2', name: 'David', avatarId: 'match-2', bio: 'Crossfit and powerlifting. Let\'s get strong.' },
+  { id: 'match-3', name: 'Chloe', avatarId: 'match-3', bio: 'I love dancing and group classes. Energy is everything!' },
+  { id: 'match-4', name: 'Mark', avatarId: 'match-4', bio: 'Swimmer and triathlete in training.' },
 ];
 
 export const currentUser = users[0];
@@ -175,10 +176,10 @@ export const chatThreads: ChatThread[] = [
     isGroup: false,
     participants: [users[1]],
     lastMessage: {
-      content: "Hey! Are you free for a workout this Friday?",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+      content: "Sure! Let's do it.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
     },
-    unreadCount: 1,
+    unreadCount: 0,
   },
   {
     id: 'chat-4',

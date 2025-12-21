@@ -1,17 +1,17 @@
 'use client';
 
 import UserProfile from '@/components/app/UserProfile';
-import { users } from '@/lib/data';
+import { users, type User } from '@/lib/data';
 import { Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 // In a real app, this would be a proper user type
-type User = {
-  id: string;
-  name: string;
-  avatarId: string;
-};
+// type User = {
+//   id: string;
+//   name: string;
+//   avatarId: string;
+// };
 
 export default function UserProfilePage() {
   const params = useParams();

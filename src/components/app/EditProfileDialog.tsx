@@ -16,35 +16,45 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@/lib/data';
 import { getImageById } from '@/lib/placeholder-images';
+import { updateProfile } from '@/lib/api';
 
 export default function EditProfileDialog({
   user,
   children,
+  onProfileUpdate
 }: {
   user: User;
   children: React.ReactNode;
+  onProfileUpdate: (updatedUser: User) => void;
 }) {
   const { toast } = useToast();
-  const [bio, setBio] = useState('Morning runner and evening lifter. Looking for a buddy to keep me accountable for my weekend long runs!');
+  const [bio, setBio] = useState(user.bio);
+  const [avatarId, setAvatarId] = useState(user.avatarId);
   const [imagePreview, setImagePreview] = useState<string | null>(getImageById(user.avatarId)?.imageUrl || null);
   const [isSaving, setIsSaving] = useState(false);
   const [open, setOpen] = useState(false);
-  const userImage = getImageById(user.avatarId);
+
+  useEffect(() => {
+    // Reset state if user prop changes
+    setBio(user.bio);
+    setAvatarId(user.avatarId);
+    setImagePreview(getImageById(user.avatarId)?.imageUrl || null);
+  }, [user]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // In a real app, you'd send this data to your API to save it.
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const updatedUser = await updateProfile(user.id, { bio, avatarId });
       
       toast({
         title: 'Profile Saved!',
         description: 'Your profile has been updated.',
       });
+      onProfileUpdate(updatedUser); // Notify parent component
       setOpen(false);
     } catch (error) {
       console.error('Failed to save profile:', error);
@@ -59,14 +69,12 @@ export default function EditProfileDialog({
   };
 
   const handleImageChange = () => {
-    // In a real app, this would open a file picker.
-    // We'll just cycle through some mock images.
-    const mockImages = ['user-2', 'user-3', 'user-4', 'user-5'];
-    const currentId = imagePreview?.includes('user-') ? imagePreview.split('user-')[1].charAt(0) : '1';
-    const currentIndex = mockImages.indexOf(`user-${currentId}`);
+    const mockImages = ['user-1', 'user-2', 'user-3', 'user-4', 'user-5'];
+    const currentIndex = mockImages.indexOf(avatarId);
     const nextIndex = (currentIndex + 1) % mockImages.length;
-    const nextImageId = mockImages[nextIndex];
-    setImagePreview(getImageById(nextImageId)?.imageUrl || null);
+    const nextAvatarId = mockImages[nextIndex];
+    setAvatarId(nextAvatarId);
+    setImagePreview(getImageById(nextAvatarId)?.imageUrl || null);
   };
 
   return (
