@@ -66,8 +66,10 @@ export default function ChatPage() {
             ? getImageById("group-avatar")
             : participant ? getImageById(participant.avatarId || 'user-1') : null;
           
+          const href = thread.isGroup ? `/chat/group/${thread.id}` : `/chat/${participant?.id}`;
+
           return (
-            <Link href="#" key={thread.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50">
+            <Link href={href} key={thread.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50">
               <Avatar className="h-12 w-12 border">
                 {avatar ? <AvatarImage src={avatar.imageUrl} alt={thread.name} data-ai-hint={avatar.imageHint} /> : null}
                 <AvatarFallback>
