@@ -101,3 +101,20 @@ export async function getChatThreads() {
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   return Promise.resolve([...chatThreads]);
 }
+
+/**
+ * Simulates adding a buddy.
+ * @param buddyId The ID of the user to add as a buddy.
+ */
+export async function addBuddy(buddyId: string): Promise<{ success: boolean }> {
+  console.log(`Mock API: Adding buddy with ID: ${buddyId}`);
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  
+  // Check if the user exists in our mock data
+  if (users.some(u => u.id === buddyId)) {
+    console.log(`Mock API: Successfully added buddy ${buddyId}`);
+    return { success: true };
+  } else {
+    throw new Error("User not found");
+  }
+}

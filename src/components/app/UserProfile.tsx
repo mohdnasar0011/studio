@@ -2,7 +2,9 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import type { User, FeedPost } from '@/lib/data';
+import type { User } from '@/lib/data';
+import { addBuddy } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 import {
   getImageById,
 } from '@/lib/placeholder-images';
@@ -11,7 +13,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePosts } from '@/hooks/use-posts';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 
 const StatItem = ({ value, label }: { value: string | number; label: string }) => (
@@ -29,13 +31,35 @@ export default function UserProfile({
   isCurrentUser: boolean;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const { posts, isLoading: isLoadingPosts } = usePosts();
+  const [isAdding, setIsAdding] = useState(false);
   
   const userPosts = useMemo(() => {
     return posts.filter(post => post.author.id === user.id);
   }, [posts, user.id]);
 
   const userImage = getImageById(user.avatarId);
+
+  const handleAddBuddy = async () => {
+    setIsAdding(true);
+    try {
+      await addBuddy(user.id);
+      toast({
+        title: 'Buddy Added!',
+        description: `You are now buddies with ${user.name}.`,
+      });
+    } catch (error) {
+      console.error("Failed to add buddy", error);
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'Could not add buddy. Please try again.',
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  }
   
   return (
     <div className="h-full">
@@ -88,8 +112,9 @@ export default function UserProfile({
 
         {!isCurrentUser && (
             <div className="mt-4 grid grid-cols-2 gap-3">
-            <Button variant="outline" size="sm" onClick={() => console.log('Add Buddy clicked for', user.name)}>
-                    <UserPlus className="mr-2 h-4 w-4" /> Add Buddy
+            <Button variant="outline" size="sm" onClick={handleAddBuddy} disabled={isAdding}>
+                    {isAdding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />} 
+                    {isAdding ? 'Adding...' : 'Add Buddy'}
             </Button>
             <Link href={`/chat/${user.id}`} passHref>
                 <Button className="w-full" size="sm">
