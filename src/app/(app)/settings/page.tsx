@@ -18,23 +18,37 @@ import { useRouter } from 'next/navigation';
 const SettingsItem = ({
   icon: Icon,
   label,
+  href,
   onClick,
 }: {
   icon: React.ElementType;
   label: string;
+  href?: string;
   onClick?: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/50"
-  >
-    <div className="flex items-center gap-4">
-      <Icon className="h-5 w-5 text-muted-foreground" />
-      <span>{label}</span>
+}) => {
+  const content = (
+    <div
+      onClick={onClick}
+      className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/50"
+    >
+      <div className="flex items-center gap-4">
+        <Icon className="h-5 w-5 text-muted-foreground" />
+        <span>{label}</span>
+      </div>
+      <ChevronRight className="h-5 w-5 text-muted-foreground" />
     </div>
-    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-  </button>
-);
+  );
+
+  if (href) {
+    return (
+      <Link href={href} passHref>
+        {content}
+      </Link>
+    );
+  }
+  
+  return <button className="w-full" onClick={onClick}>{content}</button>;
+};
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -74,7 +88,7 @@ export default function SettingsPage() {
           <h2 className="px-4 py-2 text-sm font-semibold text-muted-foreground">
             Support
           </h2>
-          <SettingsItem icon={HelpCircle} label="Help Center" onClick={() => console.log('Help Center')} />
+          <SettingsItem icon={HelpCircle} label="Help Center" href="/settings/help" />
           <SettingsItem icon={Flag} label="Report a Problem" onClick={() => console.log('Report problem')} />
         </div>
 
@@ -82,8 +96,8 @@ export default function SettingsPage() {
           <h2 className="px-4 py-2 text-sm font-semibold text-muted-foreground">
             General
           </h2>
-          <SettingsItem icon={Bell} label="Notifications" onClick={() => console.log('Notifications')} />
-          <SettingsItem icon={Shield} label="Privacy" onClick={() => console.log('Privacy')} />
+          <SettingsItem icon={Bell} label="Notifications" href="/settings/notifications" />
+          <SettingsItem icon={Shield} label="Privacy" href="/settings/privacy" />
         </div>
       </div>
     </div>
