@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { users, type User, chatThreads } from '@/lib/data';
 import { getImageById } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, Send, Smile, Loader2 } from 'lucide-react';
+import { ChevronLeft, Send, Smile, Loader2, MessageCircle } from 'lucide-react';
 
 type Message = {
     id: string;
