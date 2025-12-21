@@ -1,6 +1,6 @@
 'use client';
 
-import { Flame, Globe, MessageCircle } from 'lucide-react';
+import { Flame, Globe, MessageCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ const navItems = [
   { href: '/', label: 'Feed', icon: Globe },
   { href: '/match', label: 'Match', icon: Flame },
   { href: '/chat', label: 'Chat', icon: MessageCircle },
+  { href: '/profile', label: 'Profile', icon: User },
 ];
 
 export default function BottomNav() {
