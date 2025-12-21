@@ -9,15 +9,30 @@ import Link from "next/link";
 import CommentsSheet from "./CommentsSheet";
 import { voteOnPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function FeedPostCard({ post }: { post: FeedPost }) {
   const { toast } = useToast();
+  const [upvotes, setUpvotes] = useState(post.upvotes);
+
   // The author object might come from the backend directly
   const authorImage = post.author?.avatarId ? getImageById(post.author.avatarId) : null;
   const postImage = post.imageUrl ? { imageUrl: post.imageUrl, imageHint: 'post image' } : null;
 
   const handleVote = (voteType: 'upvote' | 'downvote') => {
-    voteOnPost(post.id, voteType).catch(err => {
+    // Optimistic UI update
+    if (voteType === 'upvote') {
+      setUpvotes(prev => prev + 1);
+    }
+    
+    voteOnPost(post.id, voteType).then(result => {
+        // Sync with the actual new count from the backend
+        setUpvotes(result.newUpvotes);
+    }).catch(err => {
+      // Revert optimistic update on failure
+      if (voteType === 'upvote') {
+        setUpvotes(prev => prev - 1);
+      }
       console.error(`Failed to ${voteType} post`, err);
       toast({
         variant: 'destructive',
@@ -25,7 +40,6 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
         description: 'Could not record your vote. Please try again.'
       });
     });
-    // Note: This is fire-and-forget. UI will not update optimistically for this mock.
   };
 
   return (
@@ -72,7 +86,7 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground" onClick={() => handleVote('upvote')}>
             <ArrowUp className="h-4 w-4" />
-            <span>{post.upvotes}</span>
+            <span>{upvotes}</span>
           </Button>
           <Button variant="ghost" size="sm" className="flex items-center gap-1 text-muted-foreground" onClick={() => handleVote('downvote')}>
             <ArrowDown className="h-4 w-4" />

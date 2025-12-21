@@ -214,10 +214,25 @@ export async function updateProfile(userId: string, updates: Partial<Pick<User, 
  * @param postId The ID of the post.
  * @param voteType The type of vote ('upvote' or 'downvote').
  */
-export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'): Promise<{ success: boolean }> {
+export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'): Promise<{ success: boolean, newUpvotes: number }> {
     console.log(`Mock API: ${voteType} on post ${postId}`);
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 4));
-    // In a real app, you'd check if the post exists and update its vote count.
-    // For now, we just log the action.
-    return { success: true };
+    
+    // Find the post in either the initial data or the in-memory data
+    let post = feedPosts.find(p => p.id === postId);
+    let inMemoryPost = inMemoryPosts.find(p => p.id === postId);
+
+    let targetPost = inMemoryPost || post;
+
+    if (targetPost) {
+        if (voteType === 'upvote') {
+            targetPost.upvotes = (targetPost.upvotes || 0) + 1;
+        } else {
+            // Downvote just logs, no change to count for this mock
+            console.log("Downvote recorded");
+        }
+        return { success: true, newUpvotes: targetPost.upvotes };
+    }
+
+    throw new Error("Post not found");
 }
