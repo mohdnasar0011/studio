@@ -4,7 +4,6 @@ import UserProfile from '@/components/app/UserProfile';
 import { type User } from '@/lib/data';
 import { getUserProfile } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 // In a real app, this would be a proper user type
@@ -14,9 +13,8 @@ import { useEffect, useState } from 'react';
 //   avatarId: string;
 // };
 
-export default function UserProfilePage() {
-  const params = useParams();
-  const userId = params.id as string;
+export default function UserProfilePage({ params }: { params: { id: string } }) {
+  const userId = params.id;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 

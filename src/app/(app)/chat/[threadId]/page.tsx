@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,10 +49,9 @@ const getConversationByParticipantId = (userId: string) => {
 }
 
 
-export default function ChatConversationPage() {
+export default function ChatConversationPage({ params }: { params: { threadId: string } }) {
   const router = useRouter();
-  const params = useParams();
-  const threadId = params.threadId as string;
+  const threadId = params.threadId;
 
   const [isLoading, setIsLoading] = useState(true);
   const [participant, setParticipant] = useState<User | null>(null);
