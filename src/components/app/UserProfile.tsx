@@ -7,10 +7,17 @@ import {
   getImageById,
   placeholderImages,
 } from '@/lib/placeholder-images';
-import { Dumbbell, Settings, Users, ChevronLeft, MessageCircle, UserPlus } from 'lucide-react';
+import { Settings, ChevronLeft, MessageCircle, UserPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+const StatItem = ({ value, label }: { value: string | number; label: string }) => (
+    <div className="flex flex-col items-center">
+        <p className="text-lg font-bold">{value}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
+    </div>
+)
 
 export default function UserProfile({
   user,
@@ -27,9 +34,9 @@ export default function UserProfile({
 
   return (
     <div className="h-full">
-      <header className="relative p-4">
-        <h1 className="text-center text-2xl font-bold">
-          {isCurrentUser ? 'Profile' : user.name}
+      <header className="sticky top-0 z-10 flex items-center border-b bg-background/80 p-4 backdrop-blur-sm">
+        <h1 className="flex-1 text-center text-xl font-bold">
+          {isCurrentUser ? user.name : user.name}
         </h1>
         {isCurrentUser ? (
           <Link href="/settings" passHref>
@@ -55,68 +62,67 @@ export default function UserProfile({
         )}
       </header>
 
-      <div className="flex flex-col items-center p-6 pt-4">
-        <Avatar className="h-24 w-24 border-4 border-background shadow-md">
-          {userImage && <AvatarImage src={userImage.imageUrl} alt={user.name} data-ai-hint={userImage.imageHint} />}
-          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <h2 className="mt-4 text-2xl font-bold">{user.name}</h2>
-        <p className="text-muted-foreground">New York, NY</p>
-      </div>
-      
-      {!isCurrentUser && (
-        <div className="grid grid-cols-2 gap-4 px-6 pb-4">
-           <Button variant="outline" size="lg" onClick={() => console.log('Add Buddy clicked for', user.name)}>
-                <UserPlus className="mr-2 h-5 w-5" /> Add Buddy
-           </Button>
-           <Link href={`/chat/${user.id}`} passHref>
-            <Button className="w-full" size="lg">
-                <MessageCircle className="mr-2 h-5 w-5" /> Message
-            </Button>
-           </Link>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-px border-y bg-border">
-        <div className="flex flex-col items-center justify-center gap-1 bg-background p-4">
-          <Users className="h-6 w-6 text-primary" />
-          <p className="text-sm font-semibold">5</p>
-          <p className="text-xs text-muted-foreground">Buddies</p>
-        </div>
-      </div>
       <div className="p-6">
-        <h3 className="text-lg font-semibold">Bio</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Morning runner and evening lifter. Looking for a buddy to keep me
-          accountable for my weekend long runs!
-        </p>
+        <div className="flex items-center gap-6">
+          <Avatar className="h-20 w-20 flex-shrink-0 border-2">
+            {userImage && <AvatarImage src={userImage.imageUrl} alt={user.name} data-ai-hint={userImage.imageHint} />}
+            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="grid flex-1 grid-cols-2 gap-4">
+              <StatItem value={7} label="Posts" />
+              <StatItem value={5} label="Buddies" />
+          </div>
+        </div>
+        
+        <div className="mt-4">
+            <h2 className="text-sm font-semibold">{user.name}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+                Morning runner and evening lifter. Looking for a buddy to keep me
+                accountable for my weekend long runs!
+            </p>
+        </div>
+
+        {!isCurrentUser && (
+            <div className="mt-4 grid grid-cols-2 gap-3">
+            <Button variant="outline" size="sm" onClick={() => console.log('Add Buddy clicked for', user.name)}>
+                    <UserPlus className="mr-2 h-4 w-4" /> Add Buddy
+            </Button>
+            <Link href={`/chat/${user.id}`} passHref>
+                <Button className="w-full" size="sm">
+                    <MessageCircle className="mr-2 h-4 w-4" /> Message
+                </Button>
+            </Link>
+            </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-3 gap-1 p-1">
-        {galleryImages.map((img) => (
-          <div key={img.id} className="relative aspect-square">
-            <Image
-              src={img.imageUrl}
-              alt={img.description}
-              fill
-              className="rounded-md object-cover"
-              data-ai-hint={img.imageHint}
-              sizes="(max-width: 768px) 33vw, 120px"
-            />
-          </div>
-        ))}
-        {galleryImages.slice(0, 1).map((img) => (
-          <div key={img.id + 'd'} className="relative aspect-square">
-            <Image
-              src={img.imageUrl}
-              alt={img.description}
-              fill
-              className="rounded-md object-cover"
-              data-ai-hint={img.imageHint}
-              sizes="(max-width: 768px) 33vw, 120px"
-            />
-          </div>
-        ))}
+      <div className="border-t">
+        <div className="grid grid-cols-3 gap-1 p-1">
+            {galleryImages.map((img) => (
+            <div key={img.id} className="relative aspect-square">
+                <Image
+                src={img.imageUrl}
+                alt={img.description}
+                fill
+                className="object-cover"
+                data-ai-hint={img.imageHint}
+                sizes="(max-width: 768px) 33vw, 120px"
+                />
+            </div>
+            ))}
+            {galleryImages.slice(0, 1).map((img) => (
+            <div key={img.id + 'd'} className="relative aspect-square">
+                <Image
+                src={img.imageUrl}
+                alt={img.description}
+                fill
+                className="object-cover"
+                data-ai-hint={img.imageHint}
+                sizes="(max-width: 768px) 33vw, 120px"
+                />
+            </div>
+            ))}
+        </div>
       </div>
     </div>
   );
