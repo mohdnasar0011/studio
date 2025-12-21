@@ -73,3 +73,19 @@ export async function getPosts() {
 
   return response.json();
 }
+
+/**
+ * Fetches all match profiles from the Spring Boot backend.
+ */
+export async function getMatchProfiles() {
+  const response = await fetch(`${API_BASE_URL}/matches`, {
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Failed to fetch match profiles: ${errorBody}`);
+  }
+
+  return response.json();
+}

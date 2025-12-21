@@ -2,8 +2,10 @@
 
 import MatchCard from '@/components/app/MatchCard';
 import { Button } from '@/components/ui/button';
-import { matchProfiles } from '@/lib/data';
-import { useState, useMemo, useRef, PointerEvent } from 'react';
+import { useMatchProfiles } from '@/hooks/use-match-profiles';
+import { useState, useMemo, useRef, PointerEvent, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2 } from 'lucide-react';
 
 type CardStatus = 'initial' | 'dismissing' | 'accepting';
 type DragState = {
@@ -12,8 +14,24 @@ type DragState = {
   isDragging: boolean;
 };
 
+const MatchCardSkeleton = () => (
+    <div className="relative w-full h-full max-w-sm p-4 pt-8 flex items-center justify-center">
+        <div className="absolute w-full h-full p-4">
+            <Card className="h-full w-full overflow-hidden rounded-2xl shadow-xl">
+                 <Skeleton className="h-full w-full" />
+            </Card>
+        </div>
+    </div>
+)
+
 export default function MatchPage() {
-  const [profiles, setProfiles] = useState(matchProfiles);
+  const { profiles: initialProfiles, isLoading, error, refetch } = useMatchProfiles();
+  const [profiles, setProfiles] = useState<typeof initialProfiles>([]);
+  
+  useEffect(() => {
+    setProfiles(initialProfiles);
+  }, [initialProfiles]);
+
   const [status, setStatus] = useState<CardStatus>('initial');
   const cardRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<DragState>({ startX: 0, currentX: 0, isDragging: false });
@@ -93,6 +111,58 @@ export default function MatchPage() {
     return { transform: 'scale(0.9)', opacity: 0 };
   }
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex h-full w-full items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    if (error) {
+        return (
+             <div className="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
+                <h2 className="text-2xl font-bold text-destructive">Oops!</h2>
+                <p className="text-muted-foreground">{error}</p>
+                <Button onClick={refetch}>Try Again</Button>
+            </div>
+        )
+    }
+
+    if (!currentProfile) {
+        return (
+            <div className="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
+                <h2 className="text-2xl font-bold">That's everyone for now!</h2>
+                <p className="text-muted-foreground">Check back later for new buddies.</p>
+                <Button onClick={refetch}>Start Over</Button>
+            </div>
+        );
+    }
+    
+    return (
+        <div className="relative w-full h-full max-w-sm p-4 pt-8 flex items-center justify-center">
+        {profiles.slice(0, 2).reverse().map((profile, index) => (
+            <div 
+                key={profile.id}
+                className="absolute w-full h-full transition-all duration-300 ease-in-out p-4"
+                style={getCardStyle(1 - index)} // 1 for top card, 0 for bottom
+                {...(index === 1 && { // Apply gesture handlers to the top card only
+                    ref: cardRef,
+                    onPointerDown: handlePointerDown,
+                    onPointerMove: handlePointerMove,
+                    onPointerUp: handlePointerUp,
+                    onPointerLeave: handlePointerUp, // End drag if cursor leaves
+                })}
+            >
+                <MatchCard profile={profile} />
+            </div>
+        ))}
+        </div>
+    );
+  }
+
+
   return (
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-muted/20">
       <header className="absolute top-0 z-10 p-4 text-center">
@@ -100,32 +170,7 @@ export default function MatchPage() {
         <p className="text-muted-foreground">Swipe right to connect, left to pass</p>
       </header>
       <div className="relative h-[calc(100%-150px)] w-full flex-grow flex items-center justify-center">
-        {!currentProfile ? (
-            <div className="flex h-full flex-col items-center justify-center gap-4 p-4 text-center">
-                <h2 className="text-2xl font-bold">That's everyone for now!</h2>
-                <p className="text-muted-foreground">Check back later for new buddies.</p>
-                <Button onClick={() => setProfiles(matchProfiles)}>Start Over</Button>
-            </div>
-        ) : (
-            <div className="relative w-full h-full max-w-sm p-4 pt-8 flex items-center justify-center">
-            {profiles.slice(0, 2).reverse().map((profile, index) => (
-                <div 
-                    key={profile.id}
-                    className="absolute w-full h-full transition-all duration-300 ease-in-out p-4"
-                    style={getCardStyle(1 - index)} // 1 for top card, 0 for bottom
-                    {...(index === 1 && { // Apply gesture handlers to the top card only
-                        ref: cardRef,
-                        onPointerDown: handlePointerDown,
-                        onPointerMove: handlePointerMove,
-                        onPointerUp: handlePointerUp,
-                        onPointerLeave: handlePointerUp, // End drag if cursor leaves
-                    })}
-                >
-                    <MatchCard profile={profile} />
-                </div>
-            ))}
-            </div>
-        )}
+        {renderContent()}
       </div>
     </div>
   );
