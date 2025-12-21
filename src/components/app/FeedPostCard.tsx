@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { getImageById } from "@/lib/placeholder-images";
 import { ArrowDown, ArrowUp, MessageSquare } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function FeedPostCard({ post }: { post: FeedPost }) {
   // The author object might come from the backend directly
@@ -16,13 +17,15 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
       <CardHeader className="flex flex-row items-start gap-3 space-y-0 p-4">
         {post.author ? (
           <>
-            <Avatar className="h-10 w-10 border">
-              {authorImage && <AvatarImage src={authorImage.imageUrl} alt={post.author.name} data-ai-hint={authorImage.imageHint}/>}
-              <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <Link href={`/profile/${post.author.id}`}>
+              <Avatar className="h-10 w-10 border">
+                {authorImage && <AvatarImage src={authorImage.imageUrl} alt={post.author.name} data-ai-hint={authorImage.imageHint}/>}
+                <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+            </Link>
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-sm font-semibold">{post.author.name}</p>
+                <Link href={`/profile/${post.author.id}`} className="text-sm font-semibold hover:underline">{post.author.name}</Link>
               </div>
               <p className="text-xs text-muted-foreground">{post.timestamp}</p>
             </div>
