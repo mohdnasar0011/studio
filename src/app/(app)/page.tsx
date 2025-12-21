@@ -3,12 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import FeedPostCard from '@/components/app/FeedPostCard';
-import CreatePost from '@/components/app/CreatePost';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FeedPost } from '@/lib/data';
 import { usePosts } from '@/hooks/use-posts';
-import { Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const FeedSkeleton = () => (
@@ -33,11 +31,6 @@ export default function FeedPage() {
   const { posts, isLoading, error, refetch } = usePosts();
   const [activeTab, setActiveTab] = useState("nearby");
 
-  const handlePostCreated = () => {
-    // Force a refetch after a post is created
-    refetch();
-  };
-
   const popularPosts = [...posts].sort((a, b) => b.upvotes - a.upvotes);
 
   return (
@@ -48,16 +41,6 @@ export default function FeedPage() {
               <TabsTrigger value="nearby">Nearby</TabsTrigger>
               <TabsTrigger value="popular">Popular</TabsTrigger>
             </TabsList>
-          <CreatePost onPostCreated={handlePostCreated}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2"
-            >
-              <Plus />
-              <span className="sr-only">Create Post</span>
-            </Button>
-          </CreatePost>
         </div>
       
 
