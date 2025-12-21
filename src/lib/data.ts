@@ -39,13 +39,15 @@ export type ChatThread = {
   unreadCount: number;
 };
 
-const users: User[] = [
+export const users: User[] = [
   { id: 'user-1', name: 'Alex Doe', avatarId: 'user-1', reliabilityScore: 98 },
   { id: 'user-2', name: 'Samantha G.', avatarId: 'user-2', reliabilityScore: 92 },
   { id: 'user-3', name: 'Mike Ross', avatarId: 'user-3', reliabilityScore: 85 },
   { id: 'user-4', name: 'Jessica P.', avatarId: 'user-4', reliabilityScore: 99 },
   { id: 'user-5', name: 'Chris Evans', avatarId: 'user-5', reliabilityScore: 95 },
 ];
+
+export const currentUser = users[0];
 
 export const feedPosts: FeedPost[] = [
   {

@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { users } from '@/lib/data';
+import { currentUser } from '@/lib/data';
 import {
   getImageById,
   placeholderImages,
@@ -13,7 +13,7 @@ import Image from 'next/image';
 
 export default function ProfilePage() {
   // For demonstration, we'll use the first user.
-  const user = users[0];
+  const user = currentUser;
   const userImage = getImageById(user.avatarId);
   // Get some images for the gallery grid
   const galleryImages = placeholderImages.filter((p) =>
