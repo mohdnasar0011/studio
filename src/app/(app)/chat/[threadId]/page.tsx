@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -6,23 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { users, type User } from '@/lib/data';
+import { users, type User, chatThreads } from '@/lib/data';
 import { getImageById } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, Send, Smile, Loader2 } from 'lucide-react';
-
-// Mock data for a single chat conversation
-const getMockConversation = (userId: string) => {
-  const otherUser = users.find(u => u.id === userId) || users[1];
-  return {
-    participant: otherUser,
-    messages: [
-      { id: 'msg-1', senderId: otherUser.id, content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
-      { id: 'msg-2', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
-      { id: 'msg-3', senderId: otherUser.id, content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
-    ],
-  };
-};
 
 type Message = {
     id: string;
@@ -30,6 +18,29 @@ type Message = {
     content: string;
     timestamp: string;
 };
+
+// In a real app, this would come from an API call
+const getConversationByParticipantId = (userId: string) => {
+    const thread = chatThreads.find(t => !t.isGroup && t.participants.some(p => p.id === userId));
+    if (!thread) return null;
+
+    const participant = users.find(u => u.id === userId);
+    if (!participant) return null;
+
+    // Create a more detailed message history for the mock
+    const messages = [
+        { id: 'msg-1', senderId: participant.id, content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
+        { id: 'msg-2', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
+        { id: 'msg-3', senderId: participant.id, content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
+        { id: 'msg-4', senderId: 'user-1', content: thread.lastMessage.content, timestamp: thread.lastMessage.timestamp },
+    ];
+    
+    return {
+        participant,
+        messages,
+    }
+}
+
 
 export default function ChatConversationPage() {
   const router = useRouter();
@@ -46,27 +57,41 @@ export default function ChatConversationPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Simulate fetching conversation data
+    // Simulate fetching conversation data based on the participant ID in the URL
     if (threadId) {
-      const convo = getMockConversation(threadId);
-      setParticipant(convo.participant);
-      setMessages(convo.messages);
+      const convo = getConversationByParticipantId(threadId);
+      if (convo) {
+        setParticipant(convo.participant);
+        setMessages(convo.messages);
+      }
       setIsLoading(false);
     }
   }, [threadId]);
 
   useEffect(() => {
     // Simulate typing indicator from the other user
-    const typingTimeout = setTimeout(() => setIsTyping(Math.random() > 0.5), Math.random() * 3000 + 1000);
-    return () => clearTimeout(typingTimeout);
+    if (messages.length > 0) {
+        const lastMessage = messages[messages.length - 1];
+        if(lastMessage.senderId === 'user-1') { // if I sent the last message
+             const typingTimeout = setTimeout(() => {
+                setIsTyping(true);
+                const replyTimeout = setTimeout(() => setIsTyping(false), 2500); // Stop typing after a bit
+                return () => clearTimeout(replyTimeout);
+            }, 1000);
+             return () => clearTimeout(typingTimeout);
+        }
+    }
   }, [messages]);
   
   useEffect(() => {
     // Scroll to the bottom when new messages are added
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight });
+      const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
+      if (viewport) {
+         viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      }
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
 
   const handleSend = () => {
@@ -89,6 +114,7 @@ export default function ChatConversationPage() {
       // Simulate a reply
       setTimeout(() => {
         if(participant) {
+            setIsTyping(false);
             const replyMessage: Message = {
                 id: `msg-${Date.now()}`,
                 senderId: participant.id,
@@ -97,7 +123,7 @@ export default function ChatConversationPage() {
             };
             setMessages(prev => [...prev, replyMessage]);
         }
-      }, 1500)
+      }, 2000); // Wait 2 seconds before replying
 
     }, 500);
   };
@@ -113,9 +139,9 @@ export default function ChatConversationPage() {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center border-b bg-background/80 p-2 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 flex items-center border-b bg-background/95 p-2 backdrop-blur-sm">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ChevronLeft />
           <span className="sr-only">Back</span>
@@ -137,12 +163,15 @@ export default function ChatConversationPage() {
         <div className="p-4 space-y-4">
           {messages.map((msg) => {
             const isMe = msg.senderId === 'user-1';
+            const msgParticipant = isMe ? null : users.find(u => u.id === msg.senderId);
+            const msgAvatar = msgParticipant ? getImageById(msgParticipant.avatarId) : null;
+
             return (
               <div key={msg.id} className={cn("flex items-end gap-2", isMe ? "justify-end" : "justify-start")}>
                 {!isMe && (
                    <Avatar className="h-6 w-6 border">
-                      {participantImage && <AvatarImage src={participantImage.imageUrl} alt={participant.name} data-ai-hint={participantImage.imageHint} />}
-                      <AvatarFallback className="text-xs">{participant.name.charAt(0)}</AvatarFallback>
+                      {msgAvatar && <AvatarImage src={msgAvatar.imageUrl} alt={msgParticipant?.name} data-ai-hint={msgAvatar.imageHint} />}
+                      <AvatarFallback className="text-xs">{msgParticipant?.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                 )}
                 <div className={cn(
@@ -169,7 +198,7 @@ export default function ChatConversationPage() {
                 className="h-11 flex-1 rounded-full border-input bg-muted pl-12 pr-20 text-base focus-visible:ring-1"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                onKeyDown={(e) => e.key === 'Enter' && !isSending && handleSend()}
             />
             <Button 
                 size="icon" 
