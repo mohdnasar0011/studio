@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,6 +31,7 @@ const FeedSkeleton = () => (
 
 export default function FeedPage() {
   const { posts, isLoading, error, refetch } = usePosts();
+  const [activeTab, setActiveTab] = useState("nearby");
 
   const handlePostCreated = () => {
     // Force a refetch after a post is created
@@ -40,14 +42,12 @@ export default function FeedPage() {
 
   return (
     <div className="container mx-auto max-w-4xl">
-      <div className="sticky top-0 z-10 -mx-4 bg-background/80 px-4 py-2 backdrop-blur-sm">
+       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="sticky top-0 z-10 -mx-4 bg-background/80 px-4 py-2 backdrop-blur-sm">
         <div className="relative mx-auto flex w-full max-w-xs items-center justify-center">
-          <Tabs defaultValue="nearby" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="nearby">Nearby</TabsTrigger>
               <TabsTrigger value="popular">Popular</TabsTrigger>
             </TabsList>
-          </Tabs>
           <CreatePost onPostCreated={handlePostCreated}>
             <Button
               variant="ghost"
@@ -59,34 +59,33 @@ export default function FeedPage() {
             </Button>
           </CreatePost>
         </div>
-      </div>
+      
 
-      <div className="space-y-4 py-4">
-        <Tabs defaultValue="nearby">
-          <TabsContent value="nearby" className="m-0 space-y-4">
-             {isLoading && !posts.length ? (
-              <FeedSkeleton />
-            ) : error ? (
-              <div className="text-center text-destructive">{error}</div>
-            ) : (
-              posts.map((post) => (
-                <FeedPostCard key={post.id} post={post} />
-              ))
-            )}
-          </TabsContent>
-          <TabsContent value="popular" className="m-0 space-y-4">
-             {isLoading && !posts.length ? (
-              <FeedSkeleton />
-            ) : error ? (
-              <div className="text-center text-destructive">{error}</div>
-            ) : (
-              popularPosts.map((post) => (
+        <div className="space-y-4 py-4">
+            <TabsContent value="nearby" className="m-0 space-y-4">
+              {isLoading && !posts.length ? (
+                <FeedSkeleton />
+              ) : error ? (
+                <div className="text-center text-destructive">{error}</div>
+              ) : (
+                posts.map((post) => (
                   <FeedPostCard key={post.id} post={post} />
                 ))
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
+              )}
+            </TabsContent>
+            <TabsContent value="popular" className="m-0 space-y-4">
+              {isLoading && !posts.length ? (
+                <FeedSkeleton />
+              ) : error ? (
+                <div className="text-center text-destructive">{error}</div>
+              ) : (
+                popularPosts.map((post) => (
+                    <FeedPostCard key={post.id} post={post} />
+                  ))
+              )}
+            </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 }
