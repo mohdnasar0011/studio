@@ -8,7 +8,7 @@ import {
   getImageById,
   placeholderImages,
 } from '@/lib/placeholder-images';
-import { Award, Dumbbell, Settings } from 'lucide-react';
+import { Award, Dumbbell, Settings, Users } from 'lucide-react';
 import Image from 'next/image';
 
 export default function ProfilePage() {
@@ -44,24 +44,14 @@ export default function ProfilePage() {
         <p className="text-muted-foreground">New York, NY</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-px border-y bg-border">
-        <div className="flex flex-col items-center justify-center gap-1 bg-background p-4">
-          <Award className="h-6 w-6 text-primary" />
-          <p className="text-sm font-semibold">{user.reliabilityScore}%</p>
-          <p className="text-xs text-muted-foreground">Reliability</p>
-        </div>
+      <div className="grid grid-cols-2 gap-px border-y bg-border">
         <div className="flex flex-col items-center justify-center gap-1 bg-background p-4">
           <Dumbbell className="h-6 w-6 text-primary" />
           <p className="text-sm font-semibold">12</p>
           <p className="text-xs text-muted-foreground">Workouts</p>
         </div>
         <div className="flex flex-col items-center justify-center gap-1 bg-background p-4">
-          <Badge
-            variant="default"
-            className="h-6 w-6 items-center justify-center bg-primary p-0"
-          >
-            5
-          </Badge>
+          <Users className="h-6 w-6 text-primary" />
           <p className="text-sm font-semibold">5</p>
           <p className="text-xs text-muted-foreground">Buddies</p>
         </div>

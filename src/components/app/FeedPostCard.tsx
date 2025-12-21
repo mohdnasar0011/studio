@@ -1,6 +1,5 @@
 import type { FeedPost } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { getImageById } from "@/lib/placeholder-images";
@@ -21,7 +20,6 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-semibold">{post.author.name}</p>
-            <Badge variant="secondary" className="whitespace-nowrap bg-primary/10 text-primary border-primary/20">{post.author.reliabilityScore}% Reliable</Badge>
           </div>
           <p className="text-xs text-muted-foreground">{post.timestamp}</p>
         </div>
