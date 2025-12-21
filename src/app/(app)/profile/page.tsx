@@ -1,7 +1,6 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { currentUser } from '@/lib/data';
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/lib/placeholder-images';
 import { Award, Dumbbell, Settings, Users } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   // For demonstration, we'll use the first user.
@@ -24,15 +24,16 @@ export default function ProfilePage() {
     <div className="h-full">
       <header className="relative p-4">
         <h1 className="text-center text-2xl font-bold">Profile</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-1/2 -translate-y-1/2"
-          onClick={() => console.log('Edit Profile clicked')}
-        >
-          <Settings />
-          <span className="sr-only">Edit Profile</span>
-        </Button>
+        <Link href="/settings" passHref>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-1/2 -translate-y-1/2"
+          >
+            <Settings />
+            <span className="sr-only">Settings</span>
+          </Button>
+        </Link>
       </header>
 
       <div className="flex flex-col items-center p-6 pt-4">
