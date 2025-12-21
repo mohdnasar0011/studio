@@ -7,11 +7,11 @@ import {
   getImageById,
   placeholderImages,
 } from '@/lib/placeholder-images';
-import { Award, Dumbbell, Settings, Users } from 'lucide-react';
+import { Dumbbell, Settings, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function ProfilePage() {
+export default function ProfilePage({}) {
   // For demonstration, we'll use the first user.
   const user = currentUser;
   const userImage = getImageById(user.avatarId);
