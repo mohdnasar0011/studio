@@ -160,7 +160,11 @@ export default function UserProfile({
             {userPosts.length === 0 && (
                 <div className="text-center text-muted-foreground py-8">
                     <p className="font-semibold">No posts yet</p>
-                    <p className="text-sm">This user hasn't posted anything.</p>
+                    {isCurrentUser ? (
+                      <p className="text-sm">Click "Create Post" to share your first activity.</p>
+                    ) : (
+                      <p className="text-sm">This user hasn't posted anything.</p>
+                    )}
                 </div>
             )}
           </div>
