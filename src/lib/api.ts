@@ -1,11 +1,14 @@
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
-import { chatThreads, currentUser, feedPosts, matchProfiles, users } from "./data";
+import { chatThreads, currentUser, feedPosts, matchProfiles, users, type FeedPost } from "./data";
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
 const MOCK_API_DELAY = 500; // ms
+
+// In-memory store for new posts to simulate a database
+let inMemoryPosts: any[] = [];
 
 /**
  * Simulates a login handshake.
@@ -46,14 +49,12 @@ export async function createPost(payload: CreatePostPayload) {
     createdAt: new Date().toISOString(),
     userId: payload.userId,
     authorName: author.name,
-    upvotes: 0,
+    upvotes: Math.floor(Math.random() * 5),
     downvotes: 0,
-    comments: 0,
+    comments: Math.floor(Math.random() * 10),
   };
   
-  // This is a mock implementation, so we're just logging it.
-  // In a real mock, you might push this to an in-memory array.
-  console.log("New post created (in-memory):", newPost);
+  inMemoryPosts.unshift(newPost); // Add to the beginning of the array
 
   return newPost;
 }
@@ -63,21 +64,24 @@ export async function createPost(payload: CreatePostPayload) {
  */
 export async function getPosts() {
   console.log("Mock Get Posts");
-  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
   
   // We'll return a format that mimics a real backend response
   const backendPosts = feedPosts.map(p => ({
     id: p.id,
     content: p.content,
     imageUrl: p.imageUrl,
-    createdAt: new Date().toISOString(),
+    createdAt: p.timestamp, // In a real app this would be an ISO string
     userId: p.author.id,
     authorName: p.author.name,
     upvotes: p.upvotes,
     comments: p.comments
   }));
+  
+  // Combine initial posts with newly created ones
+  const allPosts = [...inMemoryPosts, ...backendPosts];
 
-  return Promise.resolve(backendPosts);
+  return Promise.resolve(allPosts);
 }
 
 /**

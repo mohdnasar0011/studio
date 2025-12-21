@@ -29,13 +29,14 @@ const FeedSkeleton = () => (
 
 
 export default function FeedPage() {
-  const { posts, isLoading, error } = usePosts();
+  const { posts, isLoading, error, refetch } = usePosts();
 
   const handlePostCreated = () => {
-    // For now, the usePosts hook will refetch automatically.
-    // In a more advanced setup, you might manually refetch or optimistically update.
-    console.log('A new post was created, feed will update shortly.');
+    // Force a refetch after a post is created
+    refetch();
   };
+
+  const popularPosts = [...posts].sort((a, b) => b.upvotes - a.upvotes);
 
   return (
     <div className="container mx-auto max-w-4xl">
@@ -61,7 +62,6 @@ export default function FeedPage() {
       </div>
 
       <div className="space-y-4 py-4">
-        {/* For simplicity, both tabs show the same content. */}
         <Tabs defaultValue="nearby">
           <TabsContent value="nearby" className="m-0 space-y-4">
              {isLoading && !posts.length ? (
@@ -80,10 +80,7 @@ export default function FeedPage() {
             ) : error ? (
               <div className="text-center text-destructive">{error}</div>
             ) : (
-              posts
-                .slice()
-                .reverse()
-                .map((post) => (
+              popularPosts.map((post) => (
                   <FeedPostCard key={post.id} post={post} />
                 ))
             )}
