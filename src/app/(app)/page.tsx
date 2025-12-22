@@ -52,8 +52,8 @@ export default function FeedPage() {
 
   return (
     <div className="container mx-auto max-w-4xl">
-       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-4 -mx-4 px-4 backdrop-blur-sm">
-        <h1 className="text-2xl font-bold">Local Feed</h1>
+       <header className="flex items-center justify-between border-b bg-background p-4 -mx-4 px-4">
+        <h1 className="text-2xl font-bold">Fit Buddy</h1>
       </header>
 
       <div className="space-y-4 py-4">
