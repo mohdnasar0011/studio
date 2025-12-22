@@ -36,6 +36,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // This is a new security feature in Next.js 15+ for development.
+  // It allows requests from your local network.
+  // In a production environment, you would configure this more strictly.
+  allowedDevOrigins: ['http://192.168.1.20:9002'],
 };
 
 export default nextConfig;
