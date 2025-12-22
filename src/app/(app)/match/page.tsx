@@ -189,9 +189,9 @@ export default function MatchPage() {
 
 
   return (
-    <div className="relative flex h-full flex-col items-center justify-between overflow-hidden bg-muted/20">
-      <header className="absolute top-0 z-10 p-4 text-center">
-        <h1 className="text-2xl font-bold">Find Your Buddy</h1>
+    <div className="relative flex h-full flex-col items-center overflow-hidden bg-muted/20">
+      <header className="w-full p-4 text-center">
+        <h1 className="text-xl font-bold">Find Your Buddy</h1>
       </header>
 
       <div className="relative h-full w-full flex-grow flex items-center justify-center">
