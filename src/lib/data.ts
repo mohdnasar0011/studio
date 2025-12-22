@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   name: string;
@@ -28,6 +29,10 @@ export type FeedPost = {
   commentsData: Comment[];
   createdAt: string; // Keep createdAt for sorting
   userId: string;
+  location?: {
+    lat: number;
+    lon: number;
+  };
 };
 
 export type MatchProfile = {
@@ -99,7 +104,8 @@ export const feedPosts: FeedPost[] = [
     commentsData: [
         { id: 'comment-1-1', author: users[1], content: "I'm in! See you there.", timestamp: "2024-07-29T10:05:00Z" },
         { id: 'comment-1-2', author: users[3], content: "What's the pace like?", timestamp: "2024-07-29T10:07:00Z" },
-    ]
+    ],
+    location: { lat: 40.785091, lon: -73.968285 }
   },
   {
     id: 'post-2',
@@ -184,7 +190,29 @@ export const matchProfiles: MatchProfile[] = [
 
 export const chatThreads: ChatThread[] = [
   {
-    id: 'chat-1',
+    id: 'user-2', // For 1-on-1 chats, threadId can be the other user's ID
+    name: 'Samantha G.',
+    isGroup: false,
+    participants: [users[1], users[0]], // Samantha and Alex (current user)
+    lastMessage: {
+      content: "Sure! Let's do it.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    },
+    unreadCount: 0,
+  },
+  {
+    id: 'user-4',
+    name: 'Chris Evans',
+    isGroup: false,
+    participants: [users[4], users[0]], // Chris and Alex (current user)
+    lastMessage: {
+      content: "Perfect, let's aim for the 7 PM session.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    },
+    unreadCount: 0,
+  },
+   {
+    id: 'group-1',
     name: 'Saturday Run Group',
     isGroup: true,
     participants: [users[0], users[1], users[3]],
@@ -194,46 +222,13 @@ export const chatThreads: ChatThread[] = [
     },
     unreadCount: 2,
   },
-  {
-    id: 'chat-2',
-    name: users[4].name,
-    isGroup: false,
-    participants: [users[4], users[0]], // Add current user to participants
-    lastMessage: {
-      content: "Perfect, let's aim for the 7 PM session.",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    },
-    unreadCount: 0,
-  },
-  {
-    id: 'chat-3',
-    name: users[1].name,
-    isGroup: false,
-    participants: [users[1], users[0]], // Add current user to participants
-    lastMessage: {
-      content: "Sure! Let's do it.",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    },
-    unreadCount: 0,
-  },
-  {
-    id: 'chat-4',
-    name: 'Morning Yoga',
-    isGroup: true,
-    participants: [users[2], users[4], users[0]], // Add current user to participants
-    lastMessage: {
-      content: "You: I'll bring an extra mat.",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-    },
-    unreadCount: 0,
-  },
 ];
 
 
 // In-memory store for chat messages
 export const messagesDb: ChatMessage[] = [
-    { id: 'msg-1', threadId: 'chat-3', senderId: 'user-2', content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
-    { id: 'msg-2', threadId: 'chat-3', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
-    { id: 'msg-3', threadId: 'chat-3', senderId: 'user-2', content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
-    { id: 'msg-4', threadId: 'chat-3', senderId: 'user-1', content: "Sure! Let's do it.", timestamp: "10:33 AM" },
+    { id: 'msg-1', threadId: 'user-2', senderId: 'user-2', content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
+    { id: 'msg-2', threadId: 'user-2', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
+    { id: 'msg-3', threadId: 'user-2', senderId: 'user-2', content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
+    { id: 'msg-4', threadId: 'user-2', senderId: 'user-1', content: "Sure! Let's do it.", timestamp: "10:33 AM" },
 ];

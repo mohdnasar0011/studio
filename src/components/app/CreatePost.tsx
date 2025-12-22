@@ -10,12 +10,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
 import { Camera, MapPin, Dumbbell, X, Loader2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { createPost } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentUser } from '@/lib/data';
+import { cn } from '@/lib/utils';
 
 export default function CreatePost({
   children,
@@ -27,6 +29,7 @@ export default function CreatePost({
   const { toast } = useToast();
   const [postContent, setPostContent] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ lat: number, lon: number} | null>(null);
   const [isPosting, setIsPosting] = useState(false);
   const [open, setOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,14 +48,11 @@ export default function CreatePost({
 
     setIsPosting(true);
     try {
-      // In a real app, you'd upload the image to a storage service first.
-      // For now, we'll use the base64 data URL directly if it exists.
-      const imageUrl = imagePreview;
-
       await createPost({
         content: postContent,
-        imageUrl: imageUrl,
+        imageUrl: imagePreview,
         userId: currentUser.id,
+        location,
       });
 
       toast({
@@ -63,6 +63,7 @@ export default function CreatePost({
       // Reset state and close dialog
       setPostContent('');
       setImagePreview(null);
+      setLocation(null);
       setOpen(false); 
       
       // Notify parent to refetch posts
@@ -94,16 +95,53 @@ export default function CreatePost({
     }
   };
 
+  const handleLocationTag = () => {
+    if (!navigator.geolocation) {
+      toast({
+        variant: 'destructive',
+        title: 'Geolocation not supported',
+        description: 'Your browser does not support geolocation.',
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ lat: latitude, lon: longitude });
+        toast({
+          title: 'Location Added',
+          description: `Coordinates: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+        });
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Location Error',
+          description: 'Could not retrieve your location. Please ensure you have granted permission.',
+        });
+      }
+    );
+  };
+
+
   const removeImage = () => {
     setImagePreview(null);
-    // Also reset the file input
     if(fileInputRef.current) {
         fileInputRef.current.value = '';
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) { // Reset state on close
+            setPostContent('');
+            setImagePreview(null);
+            setLocation(null);
+        }
+    }}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -152,14 +190,21 @@ export default function CreatePost({
                 <Camera />
                 <span className="sr-only">Add Photo</span>
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => toast({ title: 'Not Implemented', description: 'Location tagging is not yet available.'})}
-              >
-                <MapPin />
-                <span className="sr-only">Add Location</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleLocationTag}
+                        >
+                            <MapPin className={cn(location && "text-green-500")}/>
+                            <span className="sr-only">Add Location</span>
+                        </Button>
+                    </TooltipTrigger>
+                    {location && <TooltipContent><p>Location Added</p></TooltipContent>}
+                </Tooltip>
+              </TooltipProvider>
               <Button
                 variant="ghost"
                 size="icon"

@@ -1,16 +1,18 @@
+
 import type { FeedPost } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getImageById } from "@/lib/placeholder-images";
-import { ArrowDown, ArrowUp, MessageSquare, Shield } from "lucide-react";
+import { ArrowDown, ArrowUp, MessageSquare, Shield, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CommentsSheet from "./CommentsSheet";
 import { voteOnPost } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "../ui/tooltip";
 
 export default function FeedPostCard({ post }: { post: FeedPost }) {
   const { toast } = useToast();
@@ -61,7 +63,21 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
                     <span className="text-muted-foreground">{post.author.reliabilityScore}%</span>
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+               <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{post.timestamp}</span>
+                {post.location && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <MapPin className="h-3 w-3 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Location tagged</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
             </div>
           </>
         ) : (

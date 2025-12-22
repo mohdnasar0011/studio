@@ -1,3 +1,4 @@
+
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
@@ -56,6 +57,7 @@ interface CreatePostPayload {
   content: string;
   imageUrl: string | null;
   userId: string;
+  location?: { lat: number; lon: number } | null;
 }
 
 /**
@@ -74,13 +76,14 @@ export async function createPost(payload: CreatePostPayload): Promise<FeedPost> 
     author: author,
     userId: author.id,
     content: payload.content,
-    imageUrl: payload.imageUrl,
+    imageUrl: payload.imageUrl || undefined,
     createdAt: new Date().toISOString(),
     timestamp: 'Just now',
     upvotes: 0,
     downvotes: 0,
     comments: 0,
     commentsData: [],
+    location: payload.location || undefined,
   };
   
   inMemoryPosts.unshift(newPost); // Add to the beginning of the array
@@ -101,7 +104,7 @@ export async function getPosts(): Promise<FeedPost[]> {
     author: users.find(u => u.id === p.userId)!,
     // Recalculate timestamp and comment count for dynamic updates
     timestamp: formatDistanceToNow(new Date(p.createdAt), { addSuffix: true }),
-    comments: (inMemoryComments.get(p.id) || p.commentsData).length,
+    comments: (inMemoryComments.get(p.id) || p.commentsData || []).length,
   }));
   
   // Sort by creation date, newest first
@@ -178,7 +181,7 @@ export async function getComments(postId: string): Promise<Comment[]> {
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
 
     const post = [...feedPosts, ...inMemoryPosts].find(p => p.id === postId);
-    const postComments = post ? post.commentsData : [];
+    const postComments = post ? (post.commentsData || []) : [];
     
     const newComments = inMemoryComments.get(postId) || [];
 
@@ -212,7 +215,7 @@ export async function addComment(postId: string, content: string): Promise<Comme
     // Also update the comment count on the post object itself
     let postToUpdate = [...feedPosts, ...inMemoryPosts].find(p => p.id === postId);
     if(postToUpdate) {
-        postToUpdate.comments = (inMemoryComments.get(postId) || postToUpdate.commentsData).length;
+        postToUpdate.comments = (inMemoryComments.get(postId) || postToUpdate.commentsData || []).length;
     }
 
     return newComment;
@@ -309,7 +312,7 @@ export async function sendMessage(threadId: string, content: string): Promise<Ch
     messagesDb.push(newMessage);
 
     // Also update the thread's last message for the inbox view
-    const thread = chatThreads.find(t => t.id === threadId);
+    const thread = chatThreads.find(t => t.id === threadId || (t.participants.some(p => p.id === threadId) && !t.isGroup));
     if(thread) {
         thread.lastMessage = {
             content: content,
