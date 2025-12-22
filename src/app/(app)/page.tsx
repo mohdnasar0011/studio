@@ -1,13 +1,12 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import FeedPostCard from '@/components/app/FeedPostCard';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { FeedPost } from '@/lib/data';
 import { usePosts } from '@/hooks/use-posts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MessageSquare } from 'lucide-react';
 
 const FeedSkeleton = () => (
   <div className="space-y-4">
@@ -28,10 +27,31 @@ const FeedSkeleton = () => (
 
 
 export default function FeedPage() {
-  const { posts, isLoading, error, refetch } = usePosts();
+  const { posts, isLoading, error } = usePosts();
   const [activeTab, setActiveTab] = useState("nearby");
 
   const popularPosts = [...posts].sort((a, b) => b.upvotes - a.upvotes);
+
+  const renderContent = (feed: typeof posts) => {
+    if (isLoading && feed.length === 0) {
+      return <FeedSkeleton />;
+    }
+    if (error) {
+      return <div className="text-center text-destructive">{error}</div>;
+    }
+    if (feed.length === 0) {
+      return (
+        <div className="flex h-48 flex-col items-center justify-center gap-2 p-4 text-center">
+          <MessageSquare className="h-12 w-12 text-muted-foreground/50" />
+          <h2 className="text-xl font-bold">No Posts Yet</h2>
+          <p className="text-muted-foreground">Be the first to share your workout plans!</p>
+        </div>
+      );
+    }
+    return feed.map((post) => (
+      <FeedPostCard key={post.id} post={post} />
+    ));
+  }
 
   return (
     <div className="container mx-auto max-w-4xl">
@@ -46,26 +66,10 @@ export default function FeedPage() {
 
         <div className="space-y-4 py-4">
             <TabsContent value="nearby" className="m-0 space-y-4">
-              {isLoading && !posts.length ? (
-                <FeedSkeleton />
-              ) : error ? (
-                <div className="text-center text-destructive">{error}</div>
-              ) : (
-                posts.map((post) => (
-                  <FeedPostCard key={post.id} post={post} />
-                ))
-              )}
+              {renderContent(posts)}
             </TabsContent>
             <TabsContent value="popular" className="m-0 space-y-4">
-              {isLoading && !posts.length ? (
-                <FeedSkeleton />
-              ) : error ? (
-                <div className="text-center text-destructive">{error}</div>
-              ) : (
-                popularPosts.map((post) => (
-                    <FeedPostCard key={post.id} post={post} />
-                  ))
-              )}
+              {renderContent(popularPosts)}
             </TabsContent>
         </div>
       </Tabs>

@@ -1,22 +1,21 @@
-
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
-import { chatThreads, getCurrentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment, type User } from "./data";
-
-const API_BASE_URL = 'http://localhost:8080/api';
+import { chatThreads, getCurrentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment, type User, type MatchProfile } from "./data";
+import { formatDistanceToNow } from 'date-fns';
 
 const MOCK_API_DELAY = 500; // ms
 
 // In-memory store for new posts to simulate a database
-let inMemoryPosts: any[] = [];
+let inMemoryPosts: FeedPost[] = [];
 // In-memory store for comments, mapping postId to a list of comments
-const inMemoryComments = new Map<string, any[]>();
+const inMemoryComments = new Map<string, Comment[]>();
 
 
 /**
  * Simulates a login handshake.
- * @param token - An authentication token (unused in mock).
+ * @param email The user's email.
+ * @param password The user's password (unused in mock).
  * @returns A promise resolving to mock user data.
  */
 export async function loginHandshake(email?: string, password?: string): Promise<User> {
@@ -24,15 +23,20 @@ export async function loginHandshake(email?: string, password?: string): Promise
   
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
   
-  // Find user by email, or use the first user as a fallback for signup
-  const user = users.find(u => u.email === email) || users[0];
-
-  if (!user) {
-    throw new Error("User not found");
+  // Find user by email. For sign up, if email is not found, use first user as fallback.
+  const user = users.find(u => u.email === email);
+  
+  if (!user && email) { // Login attempt for non-existent user
+    throw new Error("User not found or password incorrect");
   }
   
-  localStorage.setItem('userId', user.id);
-  return user;
+  const userToLogin = user || users[0];
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('userId', userToLogin.id);
+  }
+  
+  return userToLogin;
 }
 
 /**
@@ -41,7 +45,9 @@ export async function loginHandshake(email?: string, password?: string): Promise
 export async function signOut(): Promise<{ success: boolean }> {
     console.log("Mock Sign Out");
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
-    localStorage.removeItem('userId');
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem('userId');
+    }
     return { success: true };
 }
 
@@ -56,23 +62,25 @@ interface CreatePostPayload {
  * Simulates creating a new post. The post is added to an in-memory array.
  * @param payload - The post data.
  */
-export async function createPost(payload: CreatePostPayload) {
+export async function createPost(payload: CreatePostPayload): Promise<FeedPost> {
   console.log("Mock Create Post:", payload);
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
 
   const author = users.find(u => u.id === payload.userId);
   if (!author) throw new Error("User not found to create post");
 
-  const newPost = {
+  const newPost: FeedPost = {
     id: `post-${Date.now()}`,
+    author: author,
+    userId: author.id,
     content: payload.content,
     imageUrl: payload.imageUrl,
     createdAt: new Date().toISOString(),
-    userId: payload.userId,
-    authorName: author.name,
-    upvotes: Math.floor(Math.random() * 5),
+    timestamp: 'Just now',
+    upvotes: 0,
     downvotes: 0,
     comments: 0,
+    commentsData: [],
   };
   
   inMemoryPosts.unshift(newPost); // Add to the beginning of the array
@@ -83,35 +91,34 @@ export async function createPost(payload: CreatePostPayload) {
 /**
  * Fetches mock posts.
  */
-export async function getPosts(): Promise<any[]> {
+export async function getPosts(): Promise<FeedPost[]> {
   console.log("Mock Get Posts");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
   
-  // We'll return a format that mimics a real backend response
-  const backendPosts = feedPosts.map(p => ({
-    id: p.id,
-    content: p.content,
-    imageUrl: p.imageUrl,
-    createdAt: p.timestamp, // In a real app this would be an ISO string
-    userId: p.author.id,
-    authorName: p.author.name,
-    upvotes: p.upvotes,
-    comments: (inMemoryComments.get(p.id) || p.commentsData).length
+  const allDbPosts = [...feedPosts, ...inMemoryPosts].map(p => ({
+    ...p,
+    // Make sure author object is included
+    author: users.find(u => u.id === p.userId)!,
+    // Recalculate timestamp and comment count for dynamic updates
+    timestamp: formatDistanceToNow(new Date(p.createdAt), { addSuffix: true }),
+    comments: (inMemoryComments.get(p.id) || p.commentsData).length,
   }));
   
-  // Combine initial posts with newly created ones
-  const allPosts = [...inMemoryPosts.map(p => ({...p, comments: (inMemoryComments.get(p.id) || []).length})), ...backendPosts];
+  // Sort by creation date, newest first
+  allDbPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  return Promise.resolve(allPosts);
+  return Promise.resolve(allDbPosts);
 }
 
 /**
- * Fetches mock match profiles.
+ * Fetches mock match profiles, excluding the current user.
  */
 export async function getMatchProfiles(): Promise<MatchProfile[]> {
   console.log("Mock Get Match Profiles");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
-  return Promise.resolve([...matchProfiles]);
+  const currentUser = getCurrentUser();
+  const otherUsers = matchProfiles.filter(p => p.id !== currentUser?.id);
+  return Promise.resolve([...otherUsers]);
 }
 
 /**
@@ -122,7 +129,7 @@ export async function getMatchProfiles(): Promise<MatchProfile[]> {
 export async function recordMatchAction(profileId: string, action: 'accept' | 'dismiss'): Promise<{ success: boolean }> {
     console.log(`Mock Match Action: ${action} on profile ${profileId}`);
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
-    if (matchProfiles.some(p => p.id === profileId)) {
+    if (users.some(p => p.id === profileId)) {
         console.log(`Mock API: Successfully recorded ${action} for profile ${profileId}`);
         return { success: true };
     } else {
@@ -136,6 +143,7 @@ export async function recordMatchAction(profileId: string, action: 'accept' | 'd
 export async function getChatThreads(): Promise<ChatThread[]> {
   console.log("Mock Get Chat Threads");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
+  // In a real app, this would be filtered by the current user
   return Promise.resolve([...chatThreads]);
 }
 
@@ -164,7 +172,7 @@ export async function getComments(postId: string): Promise<Comment[]> {
     console.log(`Mock Get Comments for post: ${postId}`);
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
 
-    const post = feedPosts.find(p => p.id === postId);
+    const post = [...feedPosts, ...inMemoryPosts].find(p => p.id === postId);
     const postComments = post ? post.commentsData : [];
     
     const newComments = inMemoryComments.get(postId) || [];
@@ -197,16 +205,10 @@ export async function addComment(postId: string, content: string): Promise<Comme
     inMemoryComments.get(postId)?.push(newComment);
     
     // Also update the comment count on the post object itself
-    let inMemoryPost = inMemoryPosts.find(p => p.id === postId);
-    if (inMemoryPost) {
-        inMemoryPost.comments = (inMemoryPost.comments || 0) + 1;
-    } else {
-        let feedPost = feedPosts.find(p => p.id === postId);
-        if (feedPost) {
-            // This is a mock, so we'll just increment. A real backend would handle this.
-        }
+    let postToUpdate = [...feedPosts, ...inMemoryPosts].find(p => p.id === postId);
+    if(postToUpdate) {
+        postToUpdate.comments = (inMemoryComments.get(postId) || postToUpdate.commentsData).length;
     }
-
 
     return newComment;
 }
@@ -242,18 +244,15 @@ export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 4));
     
     // Find the post in either the initial data or the in-memory data
-    let post = feedPosts.find(p => p.id === postId);
-    let inMemoryPost = inMemoryPosts.find(p => p.id === postId);
-
-    let targetPost = inMemoryPost || post;
-
-    if (targetPost) {
+    let post = [...feedPosts, ...inMemoryPosts].find(p => p.id === postId);
+    
+    if (post) {
         if (voteType === 'upvote') {
-            targetPost.upvotes = (targetPost.upvotes || 0) + 1;
+            post.upvotes = (post.upvotes || 0) + 1;
         } else {
-            targetPost.upvotes = (targetPost.upvotes || 0) - 1;
+            post.upvotes = (post.upvotes || 0) - 1;
         }
-        return { success: true, newUpvotes: targetPost.upvotes };
+        return { success: true, newUpvotes: post.upvotes };
     }
 
     throw new Error("Post not found");

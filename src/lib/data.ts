@@ -24,6 +24,8 @@ export type FeedPost = {
   downvotes: number;
   comments: number;
   commentsData: Comment[];
+  createdAt: string; // Keep createdAt for sorting
+  userId: string;
 };
 
 export type MatchProfile = {
@@ -72,7 +74,9 @@ export const feedPosts: FeedPost[] = [
   {
     id: 'post-1',
     author: users[0],
+    userId: 'user-1',
     timestamp: '5m ago',
+    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     content: "Anyone up for a 5k run at Central Park tomorrow morning around 7 AM? Planning to take the main loop.",
     imageId: 'post-1',
     imageUrl: "https://images.unsplash.com/photo-1545216560-0699022d5a53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwYXJrJTIwcGF0aHxlbnwwfHx8fDE3NjYzMDUxOTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -87,23 +91,27 @@ export const feedPosts: FeedPost[] = [
   {
     id: 'post-2',
     author: users[1],
+    userId: 'user-2',
     timestamp: '30m ago',
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
     content: "Looking for a gym partner at Equinox on 5th Ave. I usually go on weekdays after 6 PM. Focus on strength training.",
     upvotes: 8,
     downvotes: 0,
-    comments: 2,
+    comments: 0,
     commentsData: []
   },
   {
     id: 'post-3',
     author: users[2],
+    userId: 'user-3',
     timestamp: '2h ago',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     content: "Is the basketball court at Pier 2 usually crowded on Saturdays? Thinking of shooting some hoops.",
     imageId: 'post-2',
     imageUrl: "https://images.unsplash.com/photo-1602357280104-742c517a1d82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYXNrZXRiYWxsJTIwY291cnR8ZW58MHx8fHwxNzY2MjkzNDk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
     upvotes: 5,
     downvotes: 0,
-    comments: 10,
+    comments: 1,
     commentsData: [
          { id: 'comment-3-1', author: users[4], content: "It can be, better to go early!", timestamp: "2024-07-29T08:30:00Z" },
     ]
