@@ -6,9 +6,7 @@ import FeedPostCard from '@/components/app/FeedPostCard';
 import { Button } from '@/components/ui/button';
 import { usePosts } from '@/hooks/use-posts';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare, Map, List } from 'lucide-react';
-import Image from 'next/image';
-import { getImageById } from '@/lib/placeholder-images';
+import { MessageSquare } from 'lucide-react';
 
 const FeedSkeleton = () => (
   <div className="space-y-4">
@@ -29,8 +27,6 @@ const FeedSkeleton = () => (
 
 export default function FeedPage() {
   const { posts, isLoading, error } = usePosts();
-  const [view, setView] = useState<'list' | 'map'>('list');
-  const mapImage = getImageById('map-placeholder');
 
   const renderContent = () => {
     if (isLoading && posts.length === 0) {
@@ -38,23 +34,6 @@ export default function FeedPage() {
     }
     if (error) {
       return <div className="text-center text-destructive">{error}</div>;
-    }
-    
-    if (view === 'map') {
-      return (
-         <div className="aspect-video w-full overflow-hidden rounded-lg border">
-            {mapImage && 
-              <Image 
-                src={mapImage.imageUrl}
-                alt="Map of posts"
-                fill
-                className="object-cover"
-                data-ai-hint={mapImage.imageHint}
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            }
-         </div>
-      );
     }
     
     if (posts.length === 0) {
@@ -75,10 +54,6 @@ export default function FeedPage() {
     <div className="container mx-auto max-w-4xl">
        <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-4 -mx-4 px-4 backdrop-blur-sm">
         <h1 className="text-2xl font-bold">Local Feed</h1>
-        <Button variant="outline" size="sm" onClick={() => setView(v => v === 'list' ? 'map' : 'list')}>
-          {view === 'list' ? <Map className="mr-2 h-4 w-4" /> : <List className="mr-2 h-4 w-4" />}
-          {view === 'list' ? 'Map View' : 'List View'}
-        </Button>
       </header>
 
       <div className="space-y-4 py-4">
