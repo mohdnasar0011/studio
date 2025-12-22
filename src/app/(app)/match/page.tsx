@@ -23,6 +23,15 @@ const MatchCardSkeleton = () => (
     </div>
 )
 
+type DragState = {
+  startX: number;
+  currentX: number;
+  isDragging: boolean;
+};
+
+type CardStatus = 'initial' | 'accepting' | 'dismissing';
+
+
 export default function MatchPage() {
   const { profiles: initialProfiles, isLoading, error, refetch } = useMatchProfiles();
   const [profiles, setProfiles] = useState<typeof initialProfiles>([]);
@@ -190,28 +199,6 @@ export default function MatchPage() {
       </div>
 
        <footer className="w-full p-4 z-10">
-        {currentProfile && (
-            <div className="flex items-center justify-center gap-4">
-                <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-16 w-16 rounded-full border-2 bg-white shadow-lg hover:bg-red-100"
-                    onClick={() => handleAction('dismiss')}
-                    disabled={status !== 'initial'}
-                >
-                    <X className="h-8 w-8 text-red-500" />
-                </Button>
-                <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-16 w-16 rounded-full border-2 bg-white shadow-lg hover:bg-green-100"
-                    onClick={() => handleAction('accept')}
-                    disabled={status !== 'initial'}
-                >
-                    <Heart className="h-8 w-8 text-green-500" />
-                </Button>
-            </div>
-        )}
          <p className="text-center text-sm text-muted-foreground mt-4">Swipe right to connect, left to pass</p>
       </footer>
     </div>
