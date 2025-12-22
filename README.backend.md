@@ -1,16 +1,16 @@
 # Backend Integration Guide for FitConnect
 
-This document provides a comprehensive guide for replacing the mock API service with a live backend (e.g., Spring Boot). It outlines the required API endpoints, data models, and database schema needed to support the FitConnect frontend application.
+This document provides a comprehensive guide for building a backend (e.g., using Spring Boot, Node.js, etc.) that is compatible with the FitConnect frontend application. It outlines the required API endpoints, data models, and database schema.
 
 ## 1. Overview
 
-The frontend is currently connected to a mock API located in `src/lib/api.ts`. To connect your Spring Boot backend, you will need to replace the mock function bodies in this file with actual `fetch` calls to your API endpoints.
+The frontend is currently connected to a mock API service located in `src/lib/api.ts`. To connect your backend, you must replace the function bodies in this file with actual `fetch` calls to your new API endpoints.
 
-All data fetching and state management on the frontend is handled by React hooks (e.g., `usePosts`, `useComments`). These hooks call the functions in `src/lib/api.ts`. As long as your new API calls return data in the expected format, the UI will work without further changes.
+All frontend data fetching and state management are handled by React hooks (e.g., `usePosts`, `useComments`). These hooks call the functions in `src/lib/api.ts`. As long as your API returns data in the formats specified in this guide, the UI will function correctly without further changes.
 
 ## 2. Database Schema
 
-Based on the application's features, here is a suggested schema for your database (e.g., PostgreSQL).
+Based on the application's features, here is a suggested schema for your database (e.g., PostgreSQL, MySQL).
 
 ### `users` table
 Stores user account information.
@@ -21,9 +21,19 @@ Stores user account information.
 | `name` | `VARCHAR(255)` | User's display name. |
 | `email` | `VARCHAR(255)` | Unique email for login. |
 | `password_hash` | `VARCHAR(255)` | Hashed password for authentication. |
-| `avatar_url` | `TEXT` | URL to the user's profile picture. |
-| `bio` | `TEXT` | User's biography. |
+| `avatar_id` | `VARCHAR(255)` | Identifier for the user's avatar image. The frontend maps this to a URL. |
+| `bio` | `TEXT` | User's short biography. |
+| `reliability_score`| `INT` | A score from 0-100 indicating user reliability. |
 | `created_at` | `TIMESTAMP` | Timestamp of account creation. |
+
+### `user_availability` table
+Stores user availability slots.
+
+| Column | Type | Description |
+|---|---|---|
+| `id` | `SERIAL` or `UUID` | Primary Key. |
+| `user_id` | `VARCHAR(255)` | Foreign Key referencing `users.id`. |
+| `availability_slot` | `VARCHAR(255)` | e.g., 'Weekdays Mornings', 'Sat Afternoons'. |
 
 ### `posts` table
 Stores all posts created by users.
@@ -34,6 +44,8 @@ Stores all posts created by users.
 | `user_id` | `VARCHAR(255)` | Foreign Key referencing `users.id`. |
 | `content` | `TEXT` | The text content of the post. |
 | `image_url` | `TEXT` | (Optional) URL to an image attached to the post. |
+| `location_lat` | `DECIMAL(10, 8)` | (Optional) Latitude of the tagged location. |
+| `location_lon` | `DECIMAL(11, 8)` | (Optional) Longitude of the tagged location. |
 | `created_at` | `TIMESTAMP` | Timestamp of post creation. |
 
 ### `comments` table
@@ -77,107 +89,117 @@ Stores swipe actions from the "Match" page.
 | `created_at` | `TIMESTAMP` | Timestamp of the action. |
 | *Primary Key* | | (`user_id`, `profile_id`) |
 
-
 ## 3. API Endpoints
 
-Your backend should expose the following RESTful endpoints.
+Your backend should expose the following RESTful endpoints. The base path for all endpoints is `/api`.
 
 ---
 ### Authentication
 
-#### `POST /api/auth/login`
+#### `POST /auth/login`
 - **Description**: Authenticates a user and returns a session token.
 - **Request Body**: `{ "email": "user@example.com", "password": "password123" }`
-- **Response**: `{ "token": "your_jwt_token", "user": { "id": "user-1", "name": "Alex Doe", ... } }`
+- **Success Response (200)**: `{ "token": "your_jwt_token", "user": { ... } }` (The full User object)
+- **Error Response (401)**: `{ "message": "Invalid credentials" }`
 
-#### `POST /api/auth/signup`
+#### `POST /auth/signup`
 - **Description**: Creates a new user account.
 - **Request Body**: `{ "name": "New User", "email": "new@example.com", "password": "password123" }`
-- **Response**: `{ "token": "your_jwt_token", "user": { ... } }`
+- **Success Response (201)**: `{ "token": "your_jwt_token", "user": { ... } }` (The new User object)
 
-#### `POST /api/auth/logout`
+#### `POST /auth/logout`
 - **Description**: Invalidates the user's session token.
 - **Authorization**: `Bearer <token>`
-- **Response**: `200 OK`
+- **Success Response (200)**: `{ "success": true }`
 
 ---
 ### Posts
 
-#### `GET /api/posts`
-- **Description**: Fetches a feed of all posts, sorted by creation date (newest first). Each post object should include author details and vote/comment counts.
-- **Response**: `[{ "id": "post-1", "content": "...", "imageUrl": "...", "createdAt": "...", "author": { "id": "user-1", "name": "Alex", "avatarUrl": "..." }, "upvotes": 12, "comments": 2 }, ...]`
+#### `GET /posts`
+- **Description**: Fetches a feed of all posts, sorted by creation date (newest first). Each post object must include the author details, vote count, and comment count.
+- **Success Response (200)**: An array of `FeedPost` objects. See `src/lib/data.ts` for the `FeedPost` type definition.
 
-#### `POST /api/posts`
+#### `POST /posts`
 - **Description**: Creates a new post.
 - **Authorization**: `Bearer <token>`
-- **Request Body**: `{ "content": "New post!", "imageUrl": "..." }`
-- **Response**: The newly created post object.
+- **Request Body**: `{ "content": "New post!", "imageUrl": "...", "location": { "lat": 40.7, "lon": -73.9 } }`
+- **Success Response (201)**: The newly created `FeedPost` object.
 
-#### `POST /api/posts/{postId}/vote`
+#### `POST /posts/{postId}/vote`
 - **Description**: Records a vote (up or down) on a post.
 - **Authorization**: `Bearer <token>`
 - **Request Body**: `{ "voteType": "upvote" | "downvote" }`
-- **Response**: `{ "success": true, "newUpvotes": 13 }`
+- **Success Response (200)**: `{ "success": true, "newUpvotes": 13 }`
 
 ---
 ### Comments
 
-#### `GET /api/posts/{postId}/comments`
+#### `GET /posts/{postId}/comments`
 - **Description**: Fetches all comments for a specific post.
-- **Response**: `[{ "id": "comment-1", "content": "...", "timestamp": "...", "author": { "id": "user-2", "name": "Samantha", "avatarUrl": "..." } }, ...]`
+- **Success Response (200)**: An array of `Comment` objects. See `src/lib/data.ts` for the type definition.
 
-#### `POST /api/posts/{postId}/comments`
+#### `POST /posts/{postId}/comments`
 - **Description**: Adds a new comment to a post.
 - **Authorization**: `Bearer <token>`
 - **Request Body**: `{ "content": "This is a great comment!" }`
-- **Response**: The newly created comment object.
+- **Success Response (201)**: The newly created `Comment` object.
 
 ---
 ### Users & Profiles
 
-#### `GET /api/users/{userId}`
-- **Description**: Fetches the complete profile for a single user, including their bio, stats, and posts.
-- **Response**: `{ "id": "user-1", "name": "Alex", ..., "posts": [...] }`
+#### `GET /users/{userId}`
+- **Description**: Fetches the complete profile for a single user, including bio, stats, and availability.
+- **Success Response (200)**: A `User` object. See `src/lib/data.ts` for the type definition.
 
-#### `PUT /api/users/me`
+#### `PUT /users/me`
 - **Description**: Updates the profile of the currently authenticated user.
 - **Authorization**: `Bearer <token>`
-- **Request Body**: `{ "bio": "New bio here.", "avatarId": "new-avatar-id" }` (Note: `avatarId` is a mock concept; you should handle image uploads and return a `avatarUrl`).
-- **Response**: The updated user object.
+- **Request Body**: `{ "bio": "New bio here.", "avatarId": "new-avatar-id" }`
+- **Success Response (200)**: The updated `User` object.
 
-#### `POST /api/buddies`
+#### `POST /buddies`
 - **Description**: Adds a user to the current user's buddy list.
 - **Authorization**: `Bearer <token>`
 - **Request Body**: `{ "buddyId": "user-2" }`
-- **Response**: `{ "success": true }`
+- **Success Response (200)**: `{ "success": true }`
 
 ---
 ### Matching
 
-#### `GET /api/match-profiles`
+#### `GET /match-profiles`
 - **Description**: Fetches a list of potential match profiles for the current user to swipe on. Your backend logic should exclude users they've already seen or are buddies with.
 - **Authorization**: `Bearer <token>`
-- **Response**: `[{ "id": "match-1", "name": "Jenna", "age": 28, ... }, ...]`
+- **Success Response (200)**: An array of `MatchProfile` objects. See `src/lib/data.ts` for the type definition.
 
-#### `POST /api/match-actions`
+#### `POST /match-actions`
 - **Description**: Records a swipe action (accept or dismiss).
 - **Authorization**: `Bearer <token>`
 - **Request Body**: `{ "profileId": "match-1", "action": "accept" }`
-- **Response**: `{ "success": true }`
+- **Success Response (200)**: `{ "success": true }`
 
 ---
 ### Chat
 
-#### `GET /api/chat/threads`
-- **Description**: Fetches the list of chat threads for the current user.
+#### `GET /chat/threads`
+- **Description**: Fetches the list of chat threads (conversations) for the current user.
 - **Authorization**: `Bearer <token>`
-- **Response**: `[{ "id": "chat-1", "name": "Saturday Run Group", "isGroup": true, ... }, ...]`
+- **Success Response (200)**: An array of `ChatThread` objects. See `src/lib/data.ts` for the type definition.
+
+#### `GET /chat/threads/{threadId}/messages`
+- **Description**: Fetches all messages for a specific chat thread.
+- **Authorization**: `Bearer <token>`
+- **Success Response (200)**: An array of `ChatMessage` objects. See `src/lib/data.ts` for the type definition.
+
+#### `POST /chat/threads/{threadId}/messages`
+- **Description**: Sends a new message in a chat thread.
+- **Authorization**: `Bearer <token>`
+- **Request Body**: `{ "content": "Hello!" }`
+- **Success Response (201)**: The newly created `ChatMessage` object.
 
 #### Real-time Chat (WebSockets)
-The frontend simulates real-time chat with API polling, but a production backend should use a WebSocket-based approach (e.g., using Spring WebSockets with STOMP).
+The frontend simulates real-time chat with API polling. For a production-ready application, a WebSocket-based approach (e.g., using Spring WebSockets with STOMP or a similar library) is highly recommended.
 
-- **Connection**: A client connects to a WebSocket endpoint like `/ws`.
-- **Subscribe**: The client subscribes to a specific thread topic, e.g., `/topic/chat/{threadId}`.
-- **Send Message**: The client sends a message to a destination like `/app/chat/{threadId}/sendMessage`. The body would contain the message payload: `{ "content": "Hello world!" }`.
+- **Connection**: A client connects to a WebSocket endpoint (e.g., `/ws`).
+- **Subscribe**: The client subscribes to a specific thread topic (e.g., `/topic/chat/{threadId}`).
+- **Send Message**: The client sends a message to a destination (e.g., `/app/chat/{threadId}/sendMessage`) with the message payload.
 - **Receive Message**: The server broadcasts new messages to all subscribers of the thread's topic.
-- **Typing Indicators**: For typing indicators, the client can send events to a destination like `/app/chat/{threadId}/typing`, and the server broadcasts these to other participants in the thread.
