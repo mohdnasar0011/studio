@@ -6,17 +6,12 @@ import { Button } from '@/components/ui/button';
 import { useMatchProfiles } from '@/hooks/use-match-profiles';
 import { useState, useMemo, useRef, PointerEvent, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { recordMatchAction } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
-type CardStatus = 'initial' | 'dismissing' | 'accepting';
-type DragState = {
-  startX: number;
-  currentX: number;
-  isDragging: boolean;
-};
 
 const MatchCardSkeleton = () => (
     <div className="relative w-full h-full max-w-sm p-4 pt-8 flex items-center justify-center">
@@ -162,11 +157,11 @@ export default function MatchPage() {
     }
     
     return (
-        <div className="relative w-full h-full max-w-sm p-4 pt-8 flex items-center justify-center">
+        <div className="relative w-full h-full max-w-sm flex items-center justify-center">
         {profiles.slice(0, 2).reverse().map((profile, index) => (
             <div 
                 key={profile.id}
-                className="absolute w-full h-full transition-all duration-300 ease-in-out p-4"
+                className="absolute w-full h-full transition-all duration-300 ease-in-out"
                 style={getCardStyle(1 - index)} // 1 for top card, 0 for bottom
                 {...(index === 1 && { // Apply gesture handlers to the top card only
                     ref: cardRef,
@@ -185,14 +180,40 @@ export default function MatchPage() {
 
 
   return (
-    <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-muted/20">
+    <div className="relative flex h-full flex-col items-center justify-between overflow-hidden bg-muted/20">
       <header className="absolute top-0 z-10 p-4 text-center">
         <h1 className="text-2xl font-bold">Find Your Buddy</h1>
-        <p className="text-muted-foreground">Swipe right to connect, left to pass</p>
       </header>
-      <div className="relative h-[calc(100%-150px)] w-full flex-grow flex items-center justify-center">
+
+      <div className="relative h-full w-full flex-grow flex items-center justify-center">
         {renderContent()}
       </div>
+
+       <footer className="w-full p-4 z-10">
+        {currentProfile && (
+            <div className="flex items-center justify-center gap-4">
+                <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-16 w-16 rounded-full border-2 bg-white shadow-lg hover:bg-red-100"
+                    onClick={() => handleAction('dismiss')}
+                    disabled={status !== 'initial'}
+                >
+                    <X className="h-8 w-8 text-red-500" />
+                </Button>
+                <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-16 w-16 rounded-full border-2 bg-white shadow-lg hover:bg-green-100"
+                    onClick={() => handleAction('accept')}
+                    disabled={status !== 'initial'}
+                >
+                    <Heart className="h-8 w-8 text-green-500" />
+                </Button>
+            </div>
+        )}
+         <p className="text-center text-sm text-muted-foreground mt-4">Swipe right to connect, left to pass</p>
+      </footer>
     </div>
   );
 }
