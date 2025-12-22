@@ -29,6 +29,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -53,16 +54,27 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // This would be your real Google Sign-in flow
-    // For the mock, we'll just sign in the default user
-    loginHandshake('alex@example.com', 'password').then(() => {
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      // This would be your real Google Sign-in flow
+      // For the mock, we'll just sign in the default user
+      await loginHandshake('alex@example.com', 'password');
+      toast({
+          title: 'Signed In!',
+          description: 'Welcome back.',
+      });
+      router.push('/feed');
+    } catch (error) {
+        console.error("Google Sign in failed:", error);
         toast({
-            title: 'Signed In!',
-            description: 'Welcome back.',
+            variant: "destructive",
+            title: "Google Sign-In Failed",
+            description: "Could not sign you in with Google. Please try again."
         });
-        router.push('/feed');
-    });
+    } finally {
+        setIsGoogleLoading(false);
+    }
   };
 
   return (
@@ -78,15 +90,15 @@ export default function LoginPage() {
         <div className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} disabled={isLoading} />
+            <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} disabled={isLoading || isGoogleLoading} />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} disabled={isLoading} />
+            <Input id="password" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} disabled={isLoading || isGoogleLoading} />
           </div>
         </div>
 
-        <Button className="mt-6 w-full" onClick={handleSignIn} disabled={isLoading || !email || !password}>
+        <Button className="mt-6 w-full" onClick={handleSignIn} disabled={isLoading || isGoogleLoading || !email || !password}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Sign In
         </Button>
@@ -101,9 +113,9 @@ export default function LoginPage() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleSignIn}
-          disabled={isLoading}
+          disabled={isLoading || isGoogleLoading}
         >
-          <GoogleIcon className="mr-2 h-5 w-5" />
+          {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-5 w-5" />}
           Continue with Google
         </Button>
 
