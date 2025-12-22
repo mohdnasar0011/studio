@@ -74,6 +74,7 @@ export const users: User[] = [
   { id: 'user-3', name: 'Mike Ross', email: 'mike@example.com', avatarId: 'user-3', bio: 'Gym rat. Usually lifting weights or playing basketball.', reliabilityScore: 88, availability: ['Mon/Wed/Fri Evenings'] },
   { id: 'user-4', name: 'Jessica P.', email: 'jessica@example.com', avatarId: 'user-4', bio: 'Casual cyclist and weekend warrior. Let\'s go for a ride!', reliabilityScore: 95, availability: ['Sat/Sun Mornings'] },
   { id: 'user-5', name: 'Chris Evans', email: 'chris@example.com', avatarId: 'user-5', bio: 'Training for a marathon. Always looking for running partners.', reliabilityScore: 99, availability: ['Anytime', 'Weekdays Evenings'] },
+  { id: 'user-6', name: 'Mohd Nasar', email: 'mohdnasar0011@gmail.com', avatarId: 'user-6', bio: 'Software developer and fitness enthusiast. Ready to connect!', reliabilityScore: 97, availability: ['Weekends', 'Evenings'] },
   { id: 'match-1', name: 'Jenna', email: 'jenna@example.com', avatarId: 'match-1', bio: 'Runner and aspiring yogi. Let\'s find our zen.', reliabilityScore: 94, availability: ['Early Mornings', 'Weekends'] },
   { id: 'match-2', name: 'David', email: 'david@example.com', avatarId: 'match-2', bio: 'Crossfit and powerlifting. Let\'s get strong.', reliabilityScore: 85, availability: ['Evenings After 7PM'] },
   { id: 'match-3', name: 'Chloe', email: 'chloe@example.com', avatarId: 'match-3', bio: 'I love dancing and group classes. Energy is everything!', reliabilityScore: 91, availability: ['Mon/Wed Evenings'] },
