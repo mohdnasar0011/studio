@@ -3,31 +3,31 @@
     {
       "id": "user-1",
       "description": "Avatar for Alex Doe",
-      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjYyNzk1MjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=alex",
       "imageHint": "man portrait"
     },
     {
       "id": "user-2",
       "description": "Avatar for Samantha G.",
-      "imageUrl": "https://images.unsplash.com/photo-1614283233556-f35b0c801ef1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2NjMwMTEzOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=samantha",
       "imageHint": "woman portrait"
     },
     {
       "id": "user-3",
       "description": "Avatar for Mike Ross",
-      "imageUrl": "https://images.unsplash.com/photo-1607031542107-f6f46b5d54e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjYyNzk1MjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=mike",
       "imageHint": "man portrait"
     },
     {
       "id": "user-4",
       "description": "Avatar for Jessica P.",
-      "imageUrl": "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2NjMwMTEzOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=jessica",
       "imageHint": "woman portrait"
     },
     {
       "id": "user-5",
       "description": "Avatar for Chris Evans",
-      "imageUrl": "https://images.unsplash.com/photo-1633394443693-8b930f9889bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYW4lMjBydW5uaW5nfGVufDB8fHx8MTc2NjMwNTE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=chris",
       "imageHint": "man running"
     },
     {
@@ -45,25 +45,25 @@
     {
       "id": "match-1",
       "description": "Profile photo for Jenna",
-      "imageUrl": "https://images.unsplash.com/photo-1603455778956-d71832eafa4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHJ1bm5pbmd8ZW58MHx8fHwxNzY2Mjg2MDE3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=jenna",
       "imageHint": "woman running"
     },
     {
       "id": "match-2",
       "description": "Profile photo for David",
-      "imageUrl": "https://images.unsplash.com/photo-1656774950529-44a6153521ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBsaWZ0aW5nfGVufDB8fHx8MTc2NjMwNTE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=david",
       "imageHint": "man lifting"
     },
     {
       "id": "match-3",
       "description": "Profile photo for Chloe",
-      "imageUrl": "https://images.unsplash.com/photo-1552196527-bffef41ef674?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHlvZ2F8ZW58MHx8fHwxNzY2Mjc4NjgwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=chloe",
       "imageHint": "woman yoga"
     },
     {
       "id": "match-4",
       "description": "Profile photo for Mark",
-      "imageUrl": "https://images.unsplash.com/photo-1673890686816-d8ee4c181a70?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBjeWNsaW5nfGVufDB8fHx8MTc2NjMwNTE5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.pravatar.cc/300?u=mark",
       "imageHint": "man cycling"
     },
     {
@@ -71,6 +71,12 @@
       "description": "Generic avatar for a group chat",
       "imageUrl": "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwZW9wbGUlMjBncm91cHxlbnwwfHx8fDE3NjYyOTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "people group"
+    },
+    {
+      "id": "map-placeholder",
+      "description": "Placeholder map image",
+      "imageUrl": "https://images.unsplash.com/photo-1717700299581-c2fc3fad4ee8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjaXR5JTIwbWFwfGVufDB8fHx8MTc2NjMwMzg3Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city map"
     }
   ]
 }

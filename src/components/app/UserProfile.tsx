@@ -3,14 +3,14 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import type { User } from '@/lib/data';
 import { addBuddy } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import {
   getImageById,
 } from '@/lib/placeholder-images';
-import { Settings, ChevronLeft, MessageCircle, UserPlus, Loader2, Edit, PlusSquare } from 'lucide-react';
-import Image from 'next/image';
+import { Settings, ChevronLeft, MessageCircle, UserPlus, Loader2, Edit, PlusSquare, Shield, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePosts } from '@/hooks/use-posts';
@@ -107,9 +107,10 @@ export default function UserProfile({
             {userImage && <AvatarImage src={userImage.imageUrl} alt={user.name} data-ai-hint={userImage.imageHint} />}
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 grid-cols-2 gap-4">
+          <div className="grid flex-1 grid-cols-3 gap-4">
               <StatItem value={userPosts.length} label="Posts" />
               <StatItem value={5} label="Buddies" />
+              <StatItem value={`${user.reliabilityScore}%`} label="Reliable" />
           </div>
         </div>
         
@@ -117,6 +118,18 @@ export default function UserProfile({
             <p className="mt-1 text-sm text-muted-foreground">
                 {user.bio}
             </p>
+        </div>
+        
+        <div className="mt-4">
+            <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2 mb-2">
+                <CalendarDays className="h-4 w-4" />
+                Availability
+            </h3>
+            <div className="flex flex-wrap gap-2">
+                {user.availability.map(time => (
+                    <Badge key={time} variant="secondary">{time}</Badge>
+                ))}
+            </div>
         </div>
 
         {isCurrentUser ? (
@@ -148,12 +161,13 @@ export default function UserProfile({
       </div>
 
       <div className="border-t">
+        <h3 className="p-4 text-lg font-semibold tracking-tight">Posts</h3>
         {isLoadingPosts ? (
            <div className="flex justify-center p-8">
              <Loader2 className="h-8 w-8 animate-spin text-primary" />
            </div>
         ) : (
-          <div className="space-y-4 p-4">
+          <div className="space-y-4 p-4 pt-0">
             {userPosts.map((post) => (
                 <FeedPostCard key={post.id} post={post} />
             ))}

@@ -3,10 +3,12 @@
 
 import { useState } from 'react';
 import FeedPostCard from '@/components/app/FeedPostCard';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { usePosts } from '@/hooks/use-posts';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Map, List } from 'lucide-react';
+import Image from 'next/image';
+import { getImageById } from '@/lib/placeholder-images';
 
 const FeedSkeleton = () => (
   <div className="space-y-4">
@@ -25,21 +27,37 @@ const FeedSkeleton = () => (
   </div>
 );
 
-
 export default function FeedPage() {
   const { posts, isLoading, error } = usePosts();
-  const [activeTab, setActiveTab] = useState("nearby");
+  const [view, setView] = useState<'list' | 'map'>('list');
+  const mapImage = getImageById('map-placeholder');
 
-  const popularPosts = [...posts].sort((a, b) => b.upvotes - a.upvotes);
-
-  const renderContent = (feed: typeof posts) => {
-    if (isLoading && feed.length === 0) {
+  const renderContent = () => {
+    if (isLoading && posts.length === 0) {
       return <FeedSkeleton />;
     }
     if (error) {
       return <div className="text-center text-destructive">{error}</div>;
     }
-    if (feed.length === 0) {
+    
+    if (view === 'map') {
+      return (
+         <div className="aspect-video w-full overflow-hidden rounded-lg border">
+            {mapImage && 
+              <Image 
+                src={mapImage.imageUrl}
+                alt="Map of posts"
+                fill
+                className="object-cover"
+                data-ai-hint={mapImage.imageHint}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            }
+         </div>
+      );
+    }
+    
+    if (posts.length === 0) {
       return (
         <div className="flex h-48 flex-col items-center justify-center gap-2 p-4 text-center">
           <MessageSquare className="h-12 w-12 text-muted-foreground/50" />
@@ -48,31 +66,24 @@ export default function FeedPage() {
         </div>
       );
     }
-    return feed.map((post) => (
+    return posts.map((post) => (
       <FeedPostCard key={post.id} post={post} />
     ));
   }
 
   return (
     <div className="container mx-auto max-w-4xl">
-       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="sticky top-0 z-10 -mx-4 bg-background/80 px-4 py-2 backdrop-blur-sm">
-        <div className="relative mx-auto flex w-full max-w-xs items-center justify-center">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="nearby">Nearby</TabsTrigger>
-              <TabsTrigger value="popular">Popular</TabsTrigger>
-            </TabsList>
-        </div>
-      
+       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-4 -mx-4 px-4 backdrop-blur-sm">
+        <h1 className="text-2xl font-bold">Local Feed</h1>
+        <Button variant="outline" size="sm" onClick={() => setView(v => v === 'list' ? 'map' : 'list')}>
+          {view === 'list' ? <Map className="mr-2 h-4 w-4" /> : <List className="mr-2 h-4 w-4" />}
+          {view === 'list' ? 'Map View' : 'List View'}
+        </Button>
+      </header>
 
-        <div className="space-y-4 py-4">
-            <TabsContent value="nearby" className="m-0 space-y-4">
-              {renderContent(posts)}
-            </TabsContent>
-            <TabsContent value="popular" className="m-0 space-y-4">
-              {renderContent(popularPosts)}
-            </TabsContent>
-        </div>
-      </Tabs>
+      <div className="space-y-4 py-4">
+        {renderContent()}
+      </div>
     </div>
   );
 }

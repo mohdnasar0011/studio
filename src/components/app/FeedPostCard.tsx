@@ -2,8 +2,9 @@ import type { FeedPost } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getImageById } from "@/lib/placeholder-images";
-import { ArrowDown, ArrowUp, MessageSquare } from "lucide-react";
+import { ArrowDown, ArrowUp, MessageSquare, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CommentsSheet from "./CommentsSheet";
@@ -55,6 +56,10 @@ export default function FeedPostCard({ post }: { post: FeedPost }) {
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <Link href={`/profile/${post.author.id}`} className="text-sm font-semibold hover:underline">{post.author.name}</Link>
+                 <Badge variant="secondary" className="gap-1.5 pl-1.5 py-0">
+                    <Shield className="h-3 w-3 text-green-600" />
+                    <span className="text-muted-foreground">{post.author.reliabilityScore}%</span>
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">{post.timestamp}</p>
             </div>

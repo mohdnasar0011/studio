@@ -7,88 +7,54 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { users, type User, chatThreads } from '@/lib/data';
+import { users, type User, type ChatMessage } from '@/lib/data';
+import { getMessages, sendMessage } from '@/lib/api';
 import { getImageById } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, Send, Smile, Loader2, MessageCircle } from 'lucide-react';
 
-type Message = {
-    id: string;
-    senderId: string;
-    content: string;
-    timestamp: string;
-};
 
-// In a real app, this would come from an API call
-const getConversationByParticipantId = (userId: string) => {
-    const thread = chatThreads.find(t => !t.isGroup && t.participants.some(p => p.id === userId));
-    const participant = users.find(u => u.id === userId);
-
-    if (!participant) return null;
-
-    if (thread) {
-         // Create a more detailed message history for the mock if a thread exists
-        const messages = [
-            { id: 'msg-1', senderId: participant.id, content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
-            { id: 'msg-2', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
-            { id: 'msg-3', senderId: participant.id, content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
-            { id: 'msg-4', senderId: 'user-1', content: thread.lastMessage.content, timestamp: thread.lastMessage.timestamp },
-        ];
-
-        return {
-            participant,
-            messages,
-        }
+const getParticipantFromThreadId = (threadId: string): User | null => {
+    // This is a mock logic. In real app, you'd fetch thread details
+    // to find the participant who is not the current user.
+    const currentUser = localStorage.getItem('userId');
+    const participant = users.find(u => u.id === threadId);
+    if (participant && participant.id !== currentUser) {
+        return participant;
     }
-    
-    // If no thread exists, create a new, empty conversation
-    return {
-        participant,
-        messages: [],
-    }
+    // Fallback or more complex logic might be needed
+    return participant || null;
 }
 
 
 export default function ChatConversationPage({ params }: { params: { threadId: string } }) {
   const router = useRouter();
-  const threadId = params.threadId;
+  const { threadId } = params;
 
   const [isLoading, setIsLoading] = useState(true);
   const [participant, setParticipant] = useState<User | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const currentUserId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Simulate fetching conversation data based on the participant ID in the URL
-    if (threadId) {
-      const convo = getConversationByParticipantId(threadId);
-      if (convo) {
-        setParticipant(convo.participant);
-        setMessages(convo.messages);
-      }
-      setIsLoading(false);
-    }
+    const fetchAndSetData = async () => {
+        setIsLoading(true);
+        if (threadId) {
+            const convoParticipant = getParticipantFromThreadId(threadId);
+            setParticipant(convoParticipant);
+
+            const fetchedMessages = await getMessages(threadId);
+            setMessages(fetchedMessages);
+            setIsLoading(false);
+        }
+    };
+    fetchAndSetData();
   }, [threadId]);
 
-  useEffect(() => {
-    // Simulate typing indicator from the other user
-    if (messages.length > 0) {
-        const lastMessage = messages[messages.length - 1];
-        if(lastMessage.senderId === 'user-1') { // if I sent the last message
-             const typingTimeout = setTimeout(() => {
-                setIsTyping(true);
-                const replyTimeout = setTimeout(() => setIsTyping(false), 2500); // Stop typing after a bit
-                return () => clearTimeout(replyTimeout);
-            }, 1000);
-             return () => clearTimeout(typingTimeout);
-        }
-    }
-  }, [messages]);
-  
   useEffect(() => {
     // Scroll to the bottom when new messages are added
     if (scrollAreaRef.current) {
@@ -97,41 +63,36 @@ export default function ChatConversationPage({ params }: { params: { threadId: s
          viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
       }
     }
-  }, [messages, isTyping]);
+  }, [messages]);
 
-
-  const handleSend = () => {
-    if (!newMessage.trim()) return;
+  const handleSend = async () => {
+    if (!newMessage.trim() || !currentUserId) return;
     setIsSending(true);
 
-    const messageToSend: Message = {
-      id: `msg-${Date.now()}`,
-      senderId: 'user-1', // Assuming current user is 'user-1'
+    const tempId = `msg-${Date.now()}`;
+    const messageToSend: ChatMessage = {
+      id: tempId,
+      threadId,
+      senderId: currentUserId,
       content: newMessage,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    // Simulate sending message
-    setTimeout(() => {
-      setMessages(prev => [...prev, messageToSend]);
-      setNewMessage('');
-      setIsSending(false);
+    // Optimistically update the UI
+    setMessages(prev => [...prev, messageToSend]);
+    setNewMessage('');
 
-      // Simulate a reply
-      setTimeout(() => {
-        if(participant) {
-            setIsTyping(false);
-            const replyMessage: Message = {
-                id: `msg-${Date.now()}`,
-                senderId: participant.id,
-                content: "Sounds good!",
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            };
-            setMessages(prev => [...prev, replyMessage]);
-        }
-      }, 2000); // Wait 2 seconds before replying
-
-    }, 500);
+    try {
+        await sendMessage(threadId, messageToSend.content);
+        // We can optionally refetch messages here to confirm, but for mock, this is fine
+    } catch (error) {
+        console.error("Failed to send message:", error);
+        // Revert optimistic update on failure
+        setMessages(prev => prev.filter(m => m.id !== tempId));
+        setNewMessage(messageToSend.content);
+    } finally {
+        setIsSending(false);
+    }
   };
 
   const participantImage = participant ? getImageById(participant.avatarId) : null;
@@ -148,7 +109,7 @@ export default function ChatConversationPage({ params }: { params: { threadId: s
     <div className="flex h-full flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center border-b bg-background/95 p-2 backdrop-blur-sm">
-        <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
+        <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.push('/chat')}>
           <ChevronLeft />
           <span className="sr-only">Back</span>
         </Button>
@@ -159,7 +120,6 @@ export default function ChatConversationPage({ params }: { params: { threadId: s
           </Avatar>
           <div>
             <p className="font-semibold">{participant.name}</p>
-            {isTyping && <p className="text-xs text-primary animate-pulse">typing...</p>}
           </div>
         </div>
       </header>
@@ -168,7 +128,7 @@ export default function ChatConversationPage({ params }: { params: { threadId: s
       <ScrollArea className="flex-1" ref={scrollAreaRef}>
         <div className="p-4 space-y-4">
           {messages.map((msg) => {
-            const isMe = msg.senderId === 'user-1';
+            const isMe = msg.senderId === currentUserId;
             const msgParticipant = isMe ? null : users.find(u => u.id === msg.senderId);
             const msgAvatar = msgParticipant ? getImageById(msgParticipant.avatarId) : null;
 

@@ -1,7 +1,7 @@
 // This file contains all the API calls to your Spring Boot backend.
 // This is a MOCK API that simulates a backend for UI development.
 
-import { chatThreads, getCurrentUser, feedPosts, matchProfiles, users, type FeedPost, type Comment, type User, type MatchProfile } from "./data";
+import { chatThreads, getCurrentUser, feedPosts, matchProfiles, users, messagesDb, type FeedPost, type Comment, type User, type MatchProfile, type ChatThread, type ChatMessage } from "./data";
 import { formatDistanceToNow } from 'date-fns';
 
 const MOCK_API_DELAY = 500; // ms
@@ -138,13 +138,18 @@ export async function recordMatchAction(profileId: string, action: 'accept' | 'd
 }
 
 /**
- * Fetches mock chat threads.
+ * Fetches mock chat threads for the current user.
  */
 export async function getChatThreads(): Promise<ChatThread[]> {
   console.log("Mock Get Chat Threads");
   await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
-  // In a real app, this would be filtered by the current user
-  return Promise.resolve([...chatThreads]);
+  const currentUser = getCurrentUser();
+  if (!currentUser) return [];
+  // Filter threads where the current user is a participant
+  const userThreads = chatThreads.filter(thread => 
+    thread.participants.some(p => p.id === currentUser.id)
+  );
+  return Promise.resolve([...userThreads]);
 }
 
 /**
@@ -250,7 +255,8 @@ export async function voteOnPost(postId: string, voteType: 'upvote' | 'downvote'
         if (voteType === 'upvote') {
             post.upvotes = (post.upvotes || 0) + 1;
         } else {
-            post.upvotes = (post.upvotes || 0) - 1;
+            // Prevent going below zero for this mock
+            post.upvotes = Math.max(0, (post.upvotes || 0) - 1);
         }
         return { success: true, newUpvotes: post.upvotes };
     }
@@ -267,4 +273,49 @@ export async function getUserProfile(userId: string): Promise<User | null> {
     await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY));
     const user = users.find(u => u.id === userId);
     return user || null;
+}
+
+
+/**
+ * Fetches messages for a specific chat thread.
+ * @param threadId The ID of the chat thread.
+ */
+export async function getMessages(threadId: string): Promise<ChatMessage[]> {
+    console.log(`Mock Get Messages for thread: ${threadId}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 3));
+    return messagesDb.filter(m => m.threadId === threadId);
+}
+
+/**
+ * Adds a new message to a chat thread.
+ * @param threadId The ID of the thread.
+ * @param content The message content.
+ */
+export async function sendMessage(threadId: string, content: string): Promise<ChatMessage> {
+    console.log(`Mock Send Message to thread ${threadId}: ${content}`);
+    await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
+    
+    const currentUser = getCurrentUser();
+    if (!currentUser) throw new Error("User must be logged in to send a message.");
+
+    const newMessage: ChatMessage = {
+        id: `msg-${Date.now()}`,
+        threadId,
+        senderId: currentUser.id,
+        content,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    messagesDb.push(newMessage);
+
+    // Also update the thread's last message for the inbox view
+    const thread = chatThreads.find(t => t.id === threadId);
+    if(thread) {
+        thread.lastMessage = {
+            content: content,
+            timestamp: new Date().toISOString(),
+        }
+    }
+
+    return newMessage;
 }

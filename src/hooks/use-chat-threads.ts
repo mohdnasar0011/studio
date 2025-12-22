@@ -20,6 +20,12 @@ export function useChatThreads() {
         setIsLoading(true);
     }
     try {
+      // Ensure we don't fetch if user is not logged in yet
+      if (typeof window !== 'undefined' && !localStorage.getItem('userId')) {
+         setIsLoading(false);
+         setThreads([]);
+         return;
+      }
       const freshThreads = await getChatThreads();
       setThreads(freshThreads);
       setError(null);
@@ -36,10 +42,20 @@ export function useChatThreads() {
   useEffect(() => {
     fetchChatThreads();
     
-    // Set up polling every 5 seconds to simulate real-time updates
-    const intervalId = setInterval(fetchChatThreads, 5000);
+    // Set up polling every 3 seconds to simulate real-time updates for new messages
+    const intervalId = setInterval(fetchChatThreads, 3000);
     return () => clearInterval(intervalId);
   }, [fetchChatThreads]);
+
+  // Refetch when user logs in/out
+  useEffect(() => {
+    const handleStorageChange = () => {
+        fetchChatThreads();
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [fetchChatThreads]);
+
 
   return { threads, isLoading, error, refetch: fetchChatThreads };
 }

@@ -4,6 +4,8 @@ export type User = {
   email: string;
   avatarId: string;
   bio: string;
+  reliabilityScore: number;
+  availability: string[];
 };
 
 export type Comment = {
@@ -37,7 +39,17 @@ export type MatchProfile = {
   goal: string;
   preferredTime: string;
   pace: string;
+  reliabilityScore: number;
+  availability: string[];
 };
+
+export type ChatMessage = {
+    id: string;
+    senderId: string;
+    content: string;
+    timestamp: string;
+    threadId: string;
+}
 
 export type ChatThread = {
   id: string;
@@ -52,20 +64,21 @@ export type ChatThread = {
 };
 
 export const users: User[] = [
-  { id: 'user-1', name: 'Alex Doe', email: 'alex@example.com', avatarId: 'user-1', bio: 'Morning runner and evening lifter. Looking for a buddy to keep me accountable for my weekend long runs!' },
-  { id: 'user-2', name: 'Samantha G.', email: 'samantha@example.com', avatarId: 'user-2', bio: 'Yoga enthusiast and occasional hiker. I love finding new trails.' },
-  { id: 'user-3', name: 'Mike Ross', email: 'mike@example.com', avatarId: 'user-3', bio: 'Gym rat. Usually lifting weights or playing basketball.' },
-  { id: 'user-4', name: 'Jessica P.', email: 'jessica@example.com', avatarId: 'user-4', bio: 'Casual cyclist and weekend warrior. Let\'s go for a ride!' },
-  { id: 'user-5', name: 'Chris Evans', email: 'chris@example.com', avatarId: 'user-5', bio: 'Training for a marathon. Always looking for running partners.' },
-  { id: 'match-1', name: 'Jenna', email: 'jenna@example.com', avatarId: 'match-1', bio: 'Runner and aspiring yogi. Let\'s find our zen.' },
-  { id: 'match-2', name: 'David', email: 'david@example.com', avatarId: 'match-2', bio: 'Crossfit and powerlifting. Let\'s get strong.' },
-  { id: 'match-3', name: 'Chloe', email: 'chloe@example.com', avatarId: 'match-3', bio: 'I love dancing and group classes. Energy is everything!' },
-  { id: 'match-4', name: 'Mark', email: 'mark@example.com', avatarId: 'match-4', bio: 'Swimmer and triathlete in training.' },
+  { id: 'user-1', name: 'Alex Doe', email: 'alex@example.com', avatarId: 'user-1', bio: 'Morning runner and evening lifter. Looking for a buddy to keep me accountable for my weekend long runs!', reliabilityScore: 98, availability: ['Weekdays Mornings', 'Sat Afternoons'] },
+  { id: 'user-2', name: 'Samantha G.', email: 'samantha@example.com', avatarId: 'user-2', bio: 'Yoga enthusiast and occasional hiker. I love finding new trails.', reliabilityScore: 92, availability: ['Weekends', 'Tue/Thu Evenings'] },
+  { id: 'user-3', name: 'Mike Ross', email: 'mike@example.com', avatarId: 'user-3', bio: 'Gym rat. Usually lifting weights or playing basketball.', reliabilityScore: 88, availability: ['Mon/Wed/Fri Evenings'] },
+  { id: 'user-4', name: 'Jessica P.', email: 'jessica@example.com', avatarId: 'user-4', bio: 'Casual cyclist and weekend warrior. Let\'s go for a ride!', reliabilityScore: 95, availability: ['Sat/Sun Mornings'] },
+  { id: 'user-5', name: 'Chris Evans', email: 'chris@example.com', avatarId: 'user-5', bio: 'Training for a marathon. Always looking for running partners.', reliabilityScore: 99, availability: ['Anytime', 'Weekdays Evenings'] },
+  { id: 'match-1', name: 'Jenna', email: 'jenna@example.com', avatarId: 'match-1', bio: 'Runner and aspiring yogi. Let\'s find our zen.', reliabilityScore: 94, availability: ['Early Mornings', 'Weekends'] },
+  { id: 'match-2', name: 'David', email: 'david@example.com', avatarId: 'match-2', bio: 'Crossfit and powerlifting. Let\'s get strong.', reliabilityScore: 85, availability: ['Evenings After 7PM'] },
+  { id: 'match-3', name: 'Chloe', email: 'chloe@example.com', avatarId: 'match-3', bio: 'I love dancing and group classes. Energy is everything!', reliabilityScore: 91, availability: ['Mon/Wed Evenings'] },
+  { id: 'match-4', name: 'Mark', email: 'mark@example.com', avatarId: 'match-4', bio: 'Swimmer and triathlete in training.', reliabilityScore: 96, availability: ['Sat/Sun Mornings'] },
 ];
 
 export const getCurrentUser = (): User | undefined => {
     if (typeof window === 'undefined') return users[0];
     const userId = localStorage.getItem('userId');
+    if (!userId) return undefined;
     return users.find(u => u.id === userId);
 }
 
@@ -128,6 +141,8 @@ export const matchProfiles: MatchProfile[] = [
     goal: 'Run my first half-marathon.',
     preferredTime: 'Early Mornings (6-8 AM)',
     pace: 'Casual (10-12 min/mile)',
+    reliabilityScore: 94, 
+    availability: ['Early Mornings', 'Weekends'],
   },
   {
     id: 'match-2',
@@ -138,6 +153,8 @@ export const matchProfiles: MatchProfile[] = [
     goal: 'Consistent weight lifting.',
     preferredTime: 'Evenings (after 7 PM)',
     pace: 'Advanced (heavy lifts)',
+    reliabilityScore: 85, 
+    availability: ['Evenings After 7PM'],
   },
   {
     id: 'match-3',
@@ -148,6 +165,8 @@ export const matchProfiles: MatchProfile[] = [
     goal: 'Find a yoga and meditation partner.',
     preferredTime: 'Weekends',
     pace: 'All levels',
+    reliabilityScore: 91, 
+    availability: ['Mon/Wed Evenings'],
   },
   {
     id: 'match-4',
@@ -158,6 +177,8 @@ export const matchProfiles: MatchProfile[] = [
     goal: 'Cycling buddy for long weekend rides.',
     preferredTime: 'Saturday/Sunday mornings',
     pace: 'Intermediate (15-18 mph)',
+    reliabilityScore: 96, 
+    availability: ['Sat/Sun Mornings'],
   },
 ];
 
@@ -177,7 +198,7 @@ export const chatThreads: ChatThread[] = [
     id: 'chat-2',
     name: users[4].name,
     isGroup: false,
-    participants: [users[4]],
+    participants: [users[4], users[0]], // Add current user to participants
     lastMessage: {
       content: "Perfect, let's aim for the 7 PM session.",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
@@ -188,7 +209,7 @@ export const chatThreads: ChatThread[] = [
     id: 'chat-3',
     name: users[1].name,
     isGroup: false,
-    participants: [users[1]],
+    participants: [users[1], users[0]], // Add current user to participants
     lastMessage: {
       content: "Sure! Let's do it.",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
@@ -199,11 +220,20 @@ export const chatThreads: ChatThread[] = [
     id: 'chat-4',
     name: 'Morning Yoga',
     isGroup: true,
-    participants: [users[2], users[4]],
+    participants: [users[2], users[4], users[0]], // Add current user to participants
     lastMessage: {
       content: "You: I'll bring an extra mat.",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
     },
     unreadCount: 0,
   },
+];
+
+
+// In-memory store for chat messages
+export const messagesDb: ChatMessage[] = [
+    { id: 'msg-1', threadId: 'chat-3', senderId: 'user-2', content: "Hey! Are you free for a workout this Friday?", timestamp: "10:30 AM" },
+    { id: 'msg-2', threadId: 'chat-3', senderId: 'user-1', content: "Yeah, I should be. What time were you thinking?", timestamp: "10:31 AM" },
+    { id: 'msg-3', threadId: 'chat-3', senderId: 'user-2', content: "How about around 6 PM at the usual spot?", timestamp: "10:32 AM" },
+    { id: 'msg-4', threadId: 'chat-3', senderId: 'user-1', content: "Sure! Let's do it.", timestamp: "10:33 AM" },
 ];
