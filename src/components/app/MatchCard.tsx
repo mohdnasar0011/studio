@@ -1,3 +1,4 @@
+
 import type { MatchProfile } from "@/lib/data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,7 @@ export default function MatchCard({ profile }: { profile: MatchProfile }) {
   const profileImage = getImageById(profile.avatarId);
   return (
     <Link href={`/profile/${profile.id}`} className="h-full w-full block">
-      <Card className="h-full w-full overflow-hidden rounded-2xl shadow-xl">
+      <Card className="h-full w-full overflow-hidden rounded-lg shadow-lg">
         <div className="relative h-full w-full">
           {profileImage && (
             <Image 
@@ -31,12 +32,12 @@ export default function MatchCard({ profile }: { profile: MatchProfile }) {
                   <div className="text-shadow">
                       <div className="flex items-center gap-3">
                         <h2 className="text-3xl font-bold">{profile.name}, {profile.age}</h2>
-                        <Badge variant="secondary" className="gap-1.5 pl-1.5 py-1 bg-white/20 text-white border-none backdrop-blur-sm">
+                        <Badge variant="secondary" className="gap-1.5 pl-1.5 py-1 bg-black/30 text-white border-none backdrop-blur-sm">
                             <Shield className="h-4 w-4 text-green-400" />
                             <span>{profile.reliabilityScore}%</span>
                         </Badge>
                       </div>
-                      <p className="text-lg opacity-90">{profile.distance} away</p>
+                      <p className="text-lg opacity-90">{profile.distance}</p>
                   </div>
                 <ScrollArea className="h-32 w-full pr-4">
                   <div className="space-y-4 text-white/90">
@@ -44,7 +45,7 @@ export default function MatchCard({ profile }: { profile: MatchProfile }) {
                         <h3 className="font-semibold text-sm uppercase tracking-wider text-white/70">Availability</h3>
                         <div className="flex flex-wrap gap-2 mt-1">
                             {profile.availability.map(time => (
-                                <Badge key={time} variant="outline" className="text-white border-white/50 bg-transparent">{time}</Badge>
+                                <Badge key={time} variant="outline" className="text-white border-white/50 bg-black/20">{time}</Badge>
                             ))}
                         </div>
                     </div>

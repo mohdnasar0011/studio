@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 const MatchCardSkeleton = () => (
     <div className="relative w-full h-full max-w-sm p-4 pt-8 flex items-center justify-center">
         <div className="absolute w-full h-full p-4">
-            <Card className="h-full w-full overflow-hidden rounded-2xl shadow-xl">
+            <Card className="h-full w-full overflow-hidden rounded-lg shadow-lg">
                  <Skeleton className="h-full w-full" />
             </Card>
         </div>
