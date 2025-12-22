@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Camera, MapPin, Dumbbell, X, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createPost } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentUser } from '@/lib/data';
@@ -29,6 +29,7 @@ export default function CreatePost({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
   const [open, setOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePost = async () => {
     const currentUser = getCurrentUser();
@@ -45,7 +46,7 @@ export default function CreatePost({
     setIsPosting(true);
     try {
       // In a real app, you'd upload the image to a storage service first.
-      // For now, we'll use the placeholder URL directly if it exists.
+      // For now, we'll use the base64 data URL directly if it exists.
       const imageUrl = imagePreview;
 
       await createPost({
@@ -79,13 +80,26 @@ export default function CreatePost({
   };
 
   const handleImageSelect = () => {
-    // This is a placeholder for actual image upload logic.
-    // In a real app, this would open a file picker.
-    setImagePreview('https://picsum.photos/seed/post-new/600/400');
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const removeImage = () => {
     setImagePreview(null);
+    // Also reset the file input
+    if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -109,7 +123,7 @@ export default function CreatePost({
               <img
                 src={imagePreview}
                 alt="Selected media"
-                className="w-full rounded-lg"
+                className="w-full rounded-lg object-cover"
               />
               <Button
                 variant="destructive"
@@ -127,6 +141,13 @@ export default function CreatePost({
         <DialogFooter className="flex-col items-stretch gap-2 sm:flex-col sm:space-x-0">
           <div className="flex justify-between border-t pt-2">
             <div className="flex gap-1">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange}
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
               <Button variant="ghost" size="icon" onClick={handleImageSelect}>
                 <Camera />
                 <span className="sr-only">Add Photo</span>
@@ -134,7 +155,7 @@ export default function CreatePost({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => console.log('Add location clicked')}
+                onClick={() => toast({ title: 'Not Implemented', description: 'Location tagging is not yet available.'})}
               >
                 <MapPin />
                 <span className="sr-only">Add Location</span>
@@ -142,7 +163,7 @@ export default function CreatePost({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => console.log('Tag activity clicked')}
+                onClick={() => toast({ title: 'Not Implemented', description: 'Activity tagging is not yet available.'})}
               >
                 <Dumbbell />
                 <span className="sr-only">Tag Activity</span>
