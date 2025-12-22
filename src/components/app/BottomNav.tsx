@@ -9,7 +9,7 @@ import CreatePost from './CreatePost';
 import { Button } from '../ui/button';
 
 const navItems = [
-  { href: '/', label: 'Feed', icon: Globe },
+  { href: '/feed', label: 'Feed', icon: Globe },
   { href: '/match', label: 'Match', icon: Flame },
   { href: 'create-post', label: 'Post', icon: Plus },
   { href: '/chat', label: 'Chat', icon: MessageCircle },

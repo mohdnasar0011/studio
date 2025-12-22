@@ -117,6 +117,7 @@ Your backend should expose the following RESTful endpoints. The base path for al
 
 #### `GET /posts`
 - **Description**: Fetches a feed of all posts, sorted by creation date (newest first). Each post object must include the author details, vote count, and comment count.
+- **Authorization**: `Bearer <token>`
 - **Success Response (200)**: An array of `FeedPost` objects. See `src/lib/data.ts` for the `FeedPost` type definition.
 
 #### `POST /posts`
@@ -136,6 +137,7 @@ Your backend should expose the following RESTful endpoints. The base path for al
 
 #### `GET /posts/{postId}/comments`
 - **Description**: Fetches all comments for a specific post.
+- **Authorization**: `Bearer <token>`
 - **Success Response (200)**: An array of `Comment` objects. See `src/lib/data.ts` for the type definition.
 
 #### `POST /posts/{postId}/comments`
@@ -149,6 +151,7 @@ Your backend should expose the following RESTful endpoints. The base path for al
 
 #### `GET /users/{userId}`
 - **Description**: Fetches the complete profile for a single user, including bio, stats, and availability.
+- **Authorization**: `Bearer <token>`
 - **Success Response (200)**: A `User` object. See `src/lib/data.ts` for the type definition.
 
 #### `PUT /users/me`

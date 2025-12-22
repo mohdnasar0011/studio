@@ -6,7 +6,7 @@ This project is built with Next.js (App Router), TypeScript, and Tailwind CSS, a
 
 ## Core Features
 
-- **Authentication**: Secure user login and signup flows.
+- **Authentication**: Secure user login and signup flows. The app requires users to log in or create an account before accessing any features.
 - **Feed**: A dynamic, scrollable feed where users can share workout plans, achievements, and photos. Includes features for upvoting, downvoting, and commenting.
 - **Matching**: A "Find Your Buddy" section with a Tinder-like swipe interface (right to connect, left to pass) to discover potential workout partners based on their profiles.
 - **User Profiles**: Comprehensive user profiles displaying a user's bio, reliability score, availability, and a feed of their personal posts. Users can edit their own profile.

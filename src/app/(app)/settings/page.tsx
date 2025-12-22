@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -69,7 +70,7 @@ export default function SettingsPage() {
             description: 'You have been successfully signed out.',
         });
         router.push('/login');
-        router.refresh();
+        router.refresh(); // Clears any client-side cache
     } catch (error) {
         console.error("Sign out failed:", error);
         toast({

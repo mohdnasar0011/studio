@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -39,8 +40,7 @@ export default function LoginPage() {
         title: 'Signed In!',
         description: 'Welcome back.',
       });
-      router.push('/');
-      router.refresh(); // Force a refresh to re-evaluate auth state
+      router.push('/feed');
     } catch (error) {
       console.error("Login failed:", error);
       toast({
@@ -55,7 +55,14 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = () => {
     // This would be your real Google Sign-in flow
-    handleSignIn();
+    // For the mock, we'll just sign in the default user
+    loginHandshake('alex@example.com', 'password').then(() => {
+        toast({
+            title: 'Signed In!',
+            description: 'Welcome back.',
+        });
+        router.push('/feed');
+    });
   };
 
   return (
@@ -79,7 +86,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Button className="mt-6 w-full" onClick={handleSignIn} disabled={isLoading}>
+        <Button className="mt-6 w-full" onClick={handleSignIn} disabled={isLoading || !email || !password}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Sign In
         </Button>
