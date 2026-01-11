@@ -6,26 +6,20 @@ This project is a full-stack application built with Next.js (App Router), TypeSc
 
 ## Core Features
 
-- **Authentication**: Secure user login and signup flows. The app requires users to log in or create an account before accessing any features.
+- **Authentication**: Secure user login and signup flows.
 - **Dynamic Feed**: A scrollable feed where users can share workout plans, achievements, and photos. Includes features for upvoting, downvoting, and commenting.
-- **Matching System**: A "Find Your Buddy" section with a Tinder-like swipe interface (right to connect, left to pass) to discover potential workout partners.
+- **Matching System**: A "Find Your Buddy" section with a Tinder-like swipe interface to discover potential workout partners.
 - **User Profiles**: Comprehensive profiles displaying a user's bio, reliability score, availability, and a feed of their personal posts. Users can edit their own profile.
-- **Real-time Chat**: A messaging system where matched users can communicate. It includes a chat inbox and individual conversation views.
-- **Settings**: A dedicated section for managing account preferences, notifications, privacy, and signing out.
+- **Real-time Chat**: A messaging system where matched users can communicate.
+- **Settings**: A dedicated section for managing account preferences and signing out.
 
-## Getting Started
+## Tech Stack
 
-To run the application locally, follow these steps:
-
-1.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-2.  **Run the development server**:
-    ```bash
-    npm run dev
-    ```
-    The application will be available at `http://localhost:9002`. Note that for the local environment to work, you will need to set up a local Postgres database and add its connection string to a `.env.local` file. For the simplest setup, deploying to Vercel is recommended.
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Database**: Vercel Postgres
+- **Deployment**: Vercel
 
 ## Deployment to Vercel
 
@@ -48,7 +42,7 @@ While the first deployment is running, you can set up the database.
 
 1.  **Go to Storage Tab**: In your new Vercel project dashboard, navigate to the "**Storage**" tab.
 2.  **Create a Database**: Click "**Create Database**" and select "**Postgres**".
-3.  **Connect to Project**: Follow the prompts to connect the new database to your project. Vercel will automatically add the necessary database connection strings (like `POSTGRES_URL`) to your project's Environment Variables.
+3.  **Connect to Project**: Follow the prompts to connect the new database to your project. Vercel will automatically add the necessary database connection strings (like `POSTGRES_URL`) to your project's Environment Variables. **You do not need to create a `.env` file for Vercel deployment.**
 
 ### Step 4: Redeploy the Application
 
@@ -66,3 +60,29 @@ Once the application is deployed, the database will be empty. A special API endp
 3.  You should see a success message: `{"message":"Database tables created and seeded successfully."}`
 
 That's it! Your application is now live, connected to a production database, and fully functional. You only need to run the `/api/seed` step **one time**.
+
+## Local Development
+
+To run the application locally, follow these steps:
+
+1.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+2.  **Set up Environment Variables**:
+    - Create a new file named `.env.local` in the root of the project.
+    - Copy the contents from `.env.example` into your new `.env.local` file.
+    - You will need a Postgres database connection string. You can get one for free from [Vercel Postgres](https://vercel.com/storage/postgres) or use any other Postgres provider.
+    - Add your connection string to the `.env.local` file:
+      ```
+      POSTGRES_URL="your_database_connection_string"
+      ```
+3.  **Run the development server**:
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:9002`.
+
+4. **Seed Your Local Database**:
+   - With the development server running, open your browser and go to `http://localhost:9002/api/seed`.
+   - This will create all the necessary tables in your local database. You only need to do this once.
