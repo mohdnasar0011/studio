@@ -2,7 +2,7 @@
 
 FitConnect is a modern, mobile-first web application designed to help users find workout partners in their area. It features a dynamic social feed, a swipe-based matching system, and real-time chat to help users connect and coordinate their fitness activities.
 
-This project is a full-stack application built with Next.js (App Router), TypeScript, and Tailwind CSS. The backend is implemented using Next.js API Routes and it's designed to connect seamlessly with a Vercel Postgres database.
+This project is a full-stack application built with Next.js (App Router), TypeScript, and Tailwind CSS. The backend is implemented using Next.js API Routes and it's designed to connect seamlessly with a Vercel Postgres database or any other standard Postgres provider.
 
 ## Core Features
 
@@ -18,7 +18,7 @@ This project is a full-stack application built with Next.js (App Router), TypeSc
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS with shadcn/ui components
-- **Database**: Vercel Postgres
+- **Database**: Vercel Postgres (or any standard Postgres provider)
 - **Deployment**: Vercel
 
 ## Deployment to Vercel
@@ -31,22 +31,44 @@ First, ensure all your application code is in a Git repository. Vercel integrate
 
 ### Step 2: Import Your Project on Vercel
 
-1.  **Sign Up/Log In**: Go to [vercel.com](https://vercel.com) and create an account or log in (signing up with your GitHub account is easiest).
+1.  **Sign Up/Log In**: Go to [vercel.com](https://vercel.com) and create an account or log in.
 2.  **Add New Project**: From your Vercel dashboard, click "**Add New...**" and select "**Project**".
 3.  **Import Git Repository**: Vercel will show a list of your Git repositories. Find this project and click the "**Import**" button.
-4.  **Configure Project**: Vercel will auto-detect that this is a Next.js project. You do not need to change any build settings. Just click "**Deploy**".
+4.  **Configure Project**: Vercel will auto-detect that this is a Next.js project. You do not need to change any build settings.
 
-### Step 3: Create and Connect Your Vercel Postgres Database
+### Step 3: Connect Your Postgres Database
 
-While the first deployment is running, you can set up the database.
+Before deploying, you need to connect a Postgres database. You have two main options:
+
+---
+
+#### Option A: Use Vercel Postgres (Recommended)
 
 1.  **Go to Storage Tab**: In your new Vercel project dashboard, navigate to the "**Storage**" tab.
 2.  **Create a Database**: Click "**Create Database**" and select "**Postgres**".
-3.  **Connect to Project**: Follow the prompts to connect the new database to your project. Vercel will automatically add the necessary database connection strings (like `POSTGRES_URL`) to your project's Environment Variables. **You do not need to create a `.env` file for Vercel deployment.**
+3.  **Connect to Project**: Follow the prompts to connect the new database to your project. Vercel will automatically add the necessary database connection strings (like `POSTGRES_URL`) to your project's Environment Variables.
 
-### Step 4: Redeploy the Application
+---
 
-After connecting the database, Vercel will prompt you to redeploy the application so it can use the new environment variables. Trigger a new deployment from the "Deployments" tab.
+#### Option B: Use a Third-Party Postgres Provider
+
+If you don't have the Vercel Postgres option, you can use any other Postgres provider (e.g., [Supabase](https://supabase.com), [Neon](https://neon.tech), [ElephantSQL](https://www.elephantsql.com/)). They all have generous free tiers.
+
+1.  **Create a Database**: Sign up with a provider and create a new Postgres database project.
+2.  **Get the Connection String**: Find the database connection string (often labeled "Postgres URL" or "Connection URI"). Make sure it's the one that pools connections. It will look something like this: `postgres://user:password@host:port/database`.
+3.  **Add Environment Variable to Vercel**:
+    *   In your Vercel project dashboard, go to the "**Settings**" tab.
+    *   Click on "**Environment Variables**".
+    *   Add a new variable with the key `POSTGRES_URL`.
+    *   Paste your database connection string as the value.
+    *   Ensure the variable is available to all environments (Production, Preview, Development).
+    *   Click "**Save**".
+
+---
+
+### Step 4: Deploy the Application
+
+After configuring your environment variables (either automatically with Vercel or manually), go to the "**Deployments**" tab and trigger a new deployment to apply the settings.
 
 ### Step 5: Seed Your Live Database (Crucial Final Step)
 
@@ -72,7 +94,7 @@ To run the application locally, follow these steps:
 2.  **Set up Environment Variables**:
     - Create a new file named `.env.local` in the root of the project.
     - Copy the contents from `.env.example` into your new `.env.local` file.
-    - You will need a Postgres database connection string. You can get one for free from [Vercel Postgres](https://vercel.com/storage/postgres) or use any other Postgres provider.
+    - You will need a Postgres database connection string. You can get one for free from any provider like [Supabase](https://supabase.com) or use a local Postgres server.
     - Add your connection string to the `.env.local` file:
       ```
       POSTGRES_URL="your_database_connection_string"
