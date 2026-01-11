@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { loginHandshake } from '@/lib/api';
+import { signupHandshake, loginHandshake } from '@/lib/api';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -37,9 +37,7 @@ export default function SignUpPage() {
   const handleSignUp = async () => {
     setIsLoading(true);
     try {
-      // Simulate signup by just logging in the mock user. 
-      // In a real app, this would call a signup endpoint.
-      await loginHandshake(email, password);
+      await signupHandshake(name, email, password);
       toast({
         title: 'Account Created!',
         description: 'Welcome to FitConnect.',
@@ -61,7 +59,7 @@ export default function SignUpPage() {
     setIsGoogleLoading(true);
     try {
         // For the mock, we'll just sign in the default user
-        await loginHandshake('alex@example.com', 'password');
+        await loginHandshake('alex@example.com');
         toast({
             title: 'Account Created!',
             description: 'Welcome to FitConnect.',

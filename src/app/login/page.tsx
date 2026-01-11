@@ -59,7 +59,7 @@ export default function LoginPage() {
     try {
       // This would be your real Google Sign-in flow
       // For the mock, we'll just sign in the default user
-      await loginHandshake('alex@example.com', 'password');
+      await loginHandshake('alex@example.com');
       toast({
           title: 'Signed In!',
           description: 'Welcome back.',

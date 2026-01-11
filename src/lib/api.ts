@@ -38,6 +38,24 @@ export async function loginHandshake(email?: string, password?: string): Promise
   return user;
 }
 
+
+/**
+ * Creates a new user account.
+ * @param name The user's name.
+ * @param email The user's email.
+ * @param password The user's password.
+ */
+export async function signupHandshake(name: string, email: string, password?: string): Promise<User> {
+  console.log("API: Signup Handshake:", { name, email });
+  const user = await fetcher('/api/auth/signup', 'POST', { name, email, password });
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('userId', user.id);
+  }
+
+  return user;
+}
+
 /**
  * Simulates user sign-out.
  */
