@@ -2,15 +2,15 @@
 
 FitConnect is a modern, mobile-first web application designed to help users find workout partners in their area. It features a dynamic social feed, a swipe-based matching system, and real-time chat to help users connect and coordinate their fitness activities.
 
-This project is built with Next.js (App Router), TypeScript, and Tailwind CSS, and uses a mock API for local development, allowing you to build and test the UI without a live backend.
+This project is a full-stack application built with Next.js (App Router), TypeScript, and Tailwind CSS. The backend is implemented using Next.js API Routes and it's designed to connect seamlessly with a Vercel Postgres database.
 
 ## Core Features
 
 - **Authentication**: Secure user login and signup flows. The app requires users to log in or create an account before accessing any features.
-- **Feed**: A dynamic, scrollable feed where users can share workout plans, achievements, and photos. Includes features for upvoting, downvoting, and commenting.
-- **Matching**: A "Find Your Buddy" section with a Tinder-like swipe interface (right to connect, left to pass) to discover potential workout partners based on their profiles.
-- **User Profiles**: Comprehensive user profiles displaying a user's bio, reliability score, availability, and a feed of their personal posts. Users can edit their own profile.
-- **Chat**: A real-time messaging system where matched users can communicate and coordinate. It includes a chat inbox and individual conversation views.
+- **Dynamic Feed**: A scrollable feed where users can share workout plans, achievements, and photos. Includes features for upvoting, downvoting, and commenting.
+- **Matching System**: A "Find Your Buddy" section with a Tinder-like swipe interface (right to connect, left to pass) to discover potential workout partners.
+- **User Profiles**: Comprehensive profiles displaying a user's bio, reliability score, availability, and a feed of their personal posts. Users can edit their own profile.
+- **Real-time Chat**: A messaging system where matched users can communicate. It includes a chat inbox and individual conversation views.
 - **Settings**: A dedicated section for managing account preferences, notifications, privacy, and signing out.
 
 ## Getting Started
@@ -25,50 +25,44 @@ To run the application locally, follow these steps:
     ```bash
     npm run dev
     ```
-    The application will be available at `http://localhost:9002`.
+    The application will be available at `http://localhost:9002`. Note that for the local environment to work, you will need to set up a local Postgres database and add its connection string to a `.env.local` file. For the simplest setup, deploying to Vercel is recommended.
 
-## Connecting to Your Backend
+## Deployment to Vercel
 
-The frontend is designed to be backend-agnostic. All communication with the server is handled through a single mock API service file. To connect your own backend (e.g., built with Node.js, Spring Boot, etc.), you only need to modify this one file.
+This application is optimized for deployment on [Vercel](https://vercel.com). Follow these steps to go from code to a live, production-ready application.
 
-**File to Edit**: `src/lib/api.ts`
+### Step 1: Push Your Code to a Git Repository
 
-### How It Works
+First, ensure all your application code is in a Git repository. Vercel integrates directly with **GitHub**, **GitLab**, and **Bitbucket**.
 
-1.  **Mock Service**: Currently, all functions in `src/lib/api.ts` (like `getPosts`, `loginHandshake`, `createPost`, etc.) return mock data and simulate network delays. They do not make real API calls.
+### Step 2: Import Your Project on Vercel
 
-2.  **React Hooks**: The UI components use custom React hooks (e.g., `usePosts`, `useComments`, `useMatchProfiles`) to fetch data. These hooks are responsible for state management (loading, error, data).
+1.  **Sign Up/Log In**: Go to [vercel.com](https://vercel.com) and create an account or log in (signing up with your GitHub account is easiest).
+2.  **Add New Project**: From your Vercel dashboard, click "**Add New...**" and select "**Project**".
+3.  **Import Git Repository**: Vercel will show a list of your Git repositories. Find this project and click the "**Import**" button.
+4.  **Configure Project**: Vercel will auto-detect that this is a Next.js project. You do not need to change any build settings. Just click "**Deploy**".
 
-3.  **The Connection**: The React hooks call the functions in `src/lib/api.ts`.
+### Step 3: Create and Connect Your Vercel Postgres Database
 
-### Your Task
+While the first deployment is running, you can set up the database.
 
-To connect your backend, you must **replace the body of each function in `src/lib/api.ts` with actual `fetch` calls to your API endpoints.**
+1.  **Go to Storage Tab**: In your new Vercel project dashboard, navigate to the "**Storage**" tab.
+2.  **Create a Database**: Click "**Create Database**" and select "**Postgres**".
+3.  **Connect to Project**: Follow the prompts to connect the new database to your project. Vercel will automatically add the necessary database connection strings (like `POSTGRES_URL`) to your project's Environment Variables.
 
-For example, to connect the `getPosts` function:
+### Step 4: Redeploy the Application
 
-```typescript
-// src/lib/api.ts
+After connecting the database, Vercel will prompt you to redeploy the application so it can use the new environment variables. Trigger a new deployment from the "Deployments" tab.
 
-// BEFORE (Mock Implementation)
-export async function getPosts(): Promise<FeedPost[]> {
-  console.log("Mock Get Posts");
-  await new Promise(resolve => setTimeout(resolve, MOCK_API_DELAY / 2));
-  // ... mock data logic
-  return Promise.resolve(allDbPosts);
-}
+### Step 5: Seed Your Live Database (Crucial Final Step)
 
-// AFTER (Your Real Backend Implementation)
-export async function getPosts(): Promise<FeedPost[]> {
-  const response = await fetch('https://your-backend-url.com/api/posts');
-  if (!response.ok) {
-    throw new Error('Failed to fetch posts');
-  }
-  const data = await response.json();
-  return data; // Ensure your API returns data in the `FeedPost` format
-}
-```
+Once the application is deployed, the database will be empty. A special API endpoint has been created to set up all the necessary tables and populate them with initial data.
 
-As long as your backend API returns data in the exact formats specified by the TypeScript types in `src/lib/data.ts` (e.g., `FeedPost`, `User`, `MatchProfile`), the UI will work seamlessly without any further changes.
+1.  **Open your live application URL** (e.g., `https-your-project-name.vercel.app`).
+2.  In your browser's address bar, add `/api/seed` to the end of the URL and press Enter. It should look like this:
+    ```
+    https://your-project-name.vercel.app/api/seed
+    ```
+3.  You should see a success message: `{"message":"Database tables created and seeded successfully."}`
 
-For a complete reference of all required API endpoints, data models, and a suggested database schema, please see `README.backend.md`.
+That's it! Your application is now live, connected to a production database, and fully functional. You only need to run the `/api/seed` step **one time**.
